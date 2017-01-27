@@ -16,7 +16,7 @@
 #define ch2VerticalScaleOffset          60
 #define ch2VerticalPositionOffset       64
 
-#define dataBeginOffset                 271
+#define dataBeginOffset                 272
 
 #include <QStringList>
 #include <QBitArray>
