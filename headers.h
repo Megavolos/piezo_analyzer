@@ -5,6 +5,7 @@
 #include <QBitArray>
 #include <QVector>
 #include <QFile>
+#include <QDataStream>
 enum headers{
 ch1DataPresentOffset=49,
 ch2DataPresentOffset=73,
@@ -46,10 +47,13 @@ public:
     QVector<quint16>    ch2ProbeDiv;
     QVector<quint32>    ch2VerticalScale;
     QVector<qint16>     ch2VerticalPosition;
-    void readHeaders(QStringList filelist);
+    void readHeaders();
 
     ~Scope();
-
+private:
+    qint64 getSignedData(QFile*,int offset, int length);
+    quint64 getUnsignedData(QFile*, int offset, int length);
+    float getFloatData(QFile*, int offset, int length);
 };
 
 #endif // HEADERS_H
