@@ -16,18 +16,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_pushButton_clicked()
 {
-
-
-    headers.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","/media/", "Wave Form (*.wfm)");
-    ui->listWidget->addItems(headers.fileNames);
-    QFile file(headers.fileNames.at(0));
+    unsigned int data;
+    QByteArray temp;
+    scope.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","/media/heavy/60CC-A3D9/", "Wave Form (*.wfm)");
+    ui->listWidget->addItems(scope.fileNames);
+    QFile file(scope.fileNames.at(0));
     if(file.open(QIODevice::ReadOnly))
     {
-        file.seek(49);
+        file.seek(headers::ch1DataPresentOffset);
 
         ui->textBrowser->setText((file.read(1).at(0)==1) ? "true\n": "false\n");
-        file.seek(numberOfPointsOffset);
-        ui->textBrowser->setText();
+
+        file.seek(headers::numberOfPointsOffset);
+        temp = file.read(4);
+        for (unsigned int i=4; i>0; i--)
+        {
+            data|=temp.at(i);
+            data=data<<8;
+        }
+
+        //ui->textBrowser->setText();
         file.close();
     }
 }

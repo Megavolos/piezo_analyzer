@@ -1,30 +1,35 @@
 #ifndef HEADERS_H
 #define HEADERS_H
-#define ch1DataPresentOffset            49
-#define ch2DataPresentOffset            73
-#define numberOfPointsOffset            28
-#define timeMultOffset                  84
-#define delayOffset                     92
-#define sampleRateOffset                100
-#define triggerModeOffset               142
-#define triggerSourceOffset             142
-
-#define ch1ProbeDivOffset               46
-#define ch1VerticalScaleOffset          36
-#define ch1VerticalPositionOffset       40
-#define ch2ProbeDivOffset               70
-#define ch2VerticalScaleOffset          60
-#define ch2VerticalPositionOffset       64
-
-#define dataBeginOffset                 272
 
 #include <QStringList>
 #include <QBitArray>
 #include <QVector>
-class Headers
+#include <QFile>
+enum headers{
+ch1DataPresentOffset=49,
+ch2DataPresentOffset=73,
+numberOfPointsOffset=28,
+timeMultOffset=84,
+delayOffset=92,
+sampleRateOffset=100,
+triggerModeOffset=142,
+triggerSourceOffset=142,
+
+ch1ProbeDivOffset=46,
+ch1VerticalScaleOffset=36,
+ch1VerticalPositionOffset=40,
+ch2ProbeDivOffset=70,
+ch2VerticalScaleOffset=60,
+ch2VerticalPositionOffset=64,
+
+dataBeginOffset=272
+
+} ;
+
+class Scope
 {
 public:
-    Headers();
+    Scope();
     QStringList         fileNames;
     QBitArray           ch1DataPresent;
     QBitArray           ch2DataPresent;
@@ -41,9 +46,9 @@ public:
     QVector<quint16>    ch2ProbeDiv;
     QVector<quint32>    ch2VerticalScale;
     QVector<qint16>     ch2VerticalPosition;
+    void readHeaders(QStringList filelist);
 
-
-    ~Headers();
+    ~Scope();
 
 };
 

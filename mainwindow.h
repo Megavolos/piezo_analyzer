@@ -16,7 +16,8 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
-    Headers headers;
+    Scope scope;
+
     ~MainWindow();
 
 private slots:
