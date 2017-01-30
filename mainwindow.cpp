@@ -18,7 +18,7 @@ void MainWindow::on_pushButton_clicked()
 {
     unsigned int data;
     QByteArray temp;
-    scope.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","/media/heavy/60CC-A3D9/", "Wave Form (*.wfm)");
+    scope.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","C:\\Users\\Olesia\\Documents\\QT\\data\\", "Wave Form (*.wfm)");
     ui->listWidget->addItems(scope.fileNames);
     QFile file(scope.fileNames.at(0));
     scope.readHeaders();

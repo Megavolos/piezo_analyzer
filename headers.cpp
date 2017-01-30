@@ -33,6 +33,7 @@ float Scope::getFloatData(QFile* file, int offset, int length)
     temp = file->read(length);
     QDataStream ds(&temp, QIODevice::ReadOnly);
     ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
+    ds.setByteOrder(QDataStream::LittleEndian);
     ds>>data;
     return data;
 }
@@ -57,8 +58,10 @@ quint64 Scope::getUnsignedData(QFile* file, int offset, int length)
 
 void Scope::readHeaders()
 {
+    QDataStream stream;
+    stream.setByteOrder(QDataStream::LittleEndian);
     uchar filesCount=fileNames.count();
-
+    quint64 o=0;
     ch1DataPresent.resize(filesCount);
     ch2DataPresent.resize(filesCount);
     numberOfPoints.resize(filesCount);
@@ -79,24 +82,38 @@ void Scope::readHeaders()
         QFile file(fileNames.at(i));
         if(file.open(QIODevice::ReadOnly))
         {
-            file.seek(headers::ch1DataPresentOffset);
+            stream.setDevice(&file);
+
+            file.seek(ch1DataPresentOffset);
             ch1DataPresent.setBit(i,file.read(1).at(0));
-            file.seek(headers::ch2DataPresentOffset);
+            file.seek(ch2DataPresentOffset);
             ch2DataPresent.setBit(i,file.read(1).at(0));
-            file.seek(headers::numberOfPointsOffset);
-    //чтение и перебор в обратном порядке.
-            numberOfPoints[i]=getSignedData(&file,headers::numberOfPointsOffset,32/8);
-            timeMult[i]=getUnsignedData(&file,headers::timeMultOffset,64/8);
-            delay[i]=getSignedData(&file,headers::delayOffset,64/8);
-            sampleRate[i]=getFloatData(&file,headers::sampleRateOffset,32/8);
-            triggerMode[i]=getUnsignedData(&file,headers::triggerModeOffset,16/8);
-            triggerSource[i]=getUnsignedData(&file,headers::triggerSourceOffset,8/8);
-            ch1ProbeDiv[i]=getUnsignedData(&file,headers::ch1ProbeDivOffset,16/8);
-            ch1VerticalScale[i]=getUnsignedData(&file,headers::ch1VerticalScaleOffset,32/8);
-            ch1VerticalPosition[i]=getSignedData(&file,headers::ch1VerticalPositionOffset,16/8);
-            ch2ProbeDiv[i]=getUnsignedData(&file,headers::ch2ProbeDivOffset,16/8);
-            ch2VerticalScale[i]=getUnsignedData(&file,headers::ch2VerticalScaleOffset,32/8);
-            ch2VerticalPosition[i]=getSignedData(&file,headers::ch2VerticalPositionOffset,16/8);
+
+            file.seek(numberOfPointsOffset);
+            stream>>numberOfPoints[i];
+            file.seek(timeMultOffset);
+            stream>>timeMult[i];
+            file.seek(delayOffset);
+            stream>>delay[i];
+            stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
+            file.seek(sampleRateOffset);
+            stream>>sampleRate[i];
+            file.seek(triggerModeOffset);
+            stream>>triggerMode[i];
+            file.seek(triggerSourceOffset);
+            stream>>triggerSource[i];
+            file.seek(ch1ProbeDivOffset);
+            stream>>ch1ProbeDiv[i];
+            file.seek(ch1VerticalScaleOffset);
+            stream>>ch1VerticalScale[i];
+            file.seek(ch1VerticalScaleOffset);
+            stream>>ch1VerticalPosition[i];
+            file.seek(ch2ProbeDivOffset);
+            stream>>ch2ProbeDiv[i];
+            file.seek(ch2VerticalScaleOffset);
+            stream>>ch2VerticalScale[i];
+            file.seek(ch2VerticalPositionOffset);
+            stream>>ch2VerticalPosition[i];
             file.close();
         }
     }

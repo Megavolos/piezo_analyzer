@@ -6,7 +6,7 @@
 #include <QVector>
 #include <QFile>
 #include <QDataStream>
-enum headers{
+enum offsets{
 ch1DataPresentOffset=49,
 ch2DataPresentOffset=73,
 numberOfPointsOffset=28,
