@@ -104,12 +104,40 @@ void Scope::readHeaders()
             stream>>triggerSource[i];
             file.seek(ch1ProbeDivOffset);
             stream>>ch1ProbeDiv[i];
+            switch (ch1ProbeDiv[i]) {
+            case 0x3F80:
+                ch1ProbeDiv[i]=1;
+                break;
+            case 0x4120:
+                ch1ProbeDiv[i]=10;
+                break;
+            case 0x42C8:
+                ch1ProbeDiv[i]=100;
+                break;
+            case 0x447A:
+                ch1ProbeDiv[i]=1000;
+                break;
+            }
             file.seek(ch1VerticalScaleOffset);
             stream>>ch1VerticalScale[i];
             file.seek(ch1VerticalScaleOffset);
             stream>>ch1VerticalPosition[i];
             file.seek(ch2ProbeDivOffset);
             stream>>ch2ProbeDiv[i];
+            switch (ch2ProbeDiv[i]) {
+            case 0x3F80:
+                ch2ProbeDiv[i]=1;
+                break;
+            case 0x4120:
+                ch2ProbeDiv[i]=10;
+                break;
+            case 0x42C8:
+                ch2ProbeDiv[i]=100;
+                break;
+            case 0x447A:
+                ch2ProbeDiv[i]=1000;
+                break;
+            }
             file.seek(ch2VerticalScaleOffset);
             stream>>ch2VerticalScale[i];
             file.seek(ch2VerticalPositionOffset);
