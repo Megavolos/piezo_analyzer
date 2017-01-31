@@ -6,12 +6,38 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    leg = new QwtLegend();
+    leg->setDefaultItemMode(QwtLegendData::ReadOnly);
+    ui->qwtPlot->setTitle("Данные из файлов");
+    ui->qwtPlot->insertLegend(leg,QwtPlot::TopLegend);
+    grid = new QwtPlotGrid;
+    grid->enableXMin(true);
+    grid->setMajorPen(QPen(Qt::black,1,Qt::DotLine));
+    grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
+    grid->attach(ui->qwtPlot);
+    ui->qwtPlot->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, мкс"));
+   // ui->qwtPlot->setAxisScale(QwtPlot::xBottom,-0.25,8.25);
+    ui->qwtPlot->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U, В"));
+   // ui->qwtPlot->setAxisScale(QwtPlot::yLeft,-1.25,1.25);
+
+    curv1 = new QwtPlotCurve(QString("U1(t)"));
+    curv1->setRenderHint(QwtPlotItem::RenderAntialiased);
+    curv1->setPen(QPen(Qt::red));
+    //QwtSymbol *symbol1 = new QwtSymbol();
+    //symbol1->setStyle(QwtSymbol::Ellipse);
+    //symbol1->setPen(QColor(Qt::black));
+    //symbol1->setSize(4);
+   // curv1->setSymbol(symbol1);
+
 
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete leg;
+    delete grid;
+    delete curv1;
 }
 
 
@@ -56,6 +82,36 @@ void MainWindow::on_actionTest_triggered()
         }
         ui->textBrowser->setText(out);
 
+
     }
 
+}
+
+void MainWindow::on_pushButton_clicked()
+{
+    QDataStream stream;
+    QVector<double> yDataDouble(scope.numberOfPoints.at(0));
+    uchar filesCount=scope.fileNames.count();
+    stream.setByteOrder(QDataStream::LittleEndian);
+    for (int i=0;i<filesCount;i++)
+    {
+        QFile file(scope.fileNames.at(i));
+        if(file.open(QIODevice::ReadOnly))
+        {
+            stream.setDevice(&file);
+            file.seek(272);
+            xData.resize(scope.numberOfPoints.at(0));
+            yData.resize(scope.numberOfPoints.at(0));
+            for (int j=0; j<scope.numberOfPoints.at(0);j++)
+            {
+                stream>>yData[j];
+                xData[j]=j;
+                yDataDouble[j]=yData[j];
+            }
+            file.close();
+        }
+    }
+    curv1->setSamples(xData,yDataDouble);
+    curv1->attach(ui->qwtPlot);
+    ui->qwtPlot->replot();
 }

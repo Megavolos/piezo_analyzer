@@ -20,3 +20,10 @@ HEADERS  += mainwindow.h \
     headers.h
 
 FORMS    += mainwindow.ui
+
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/release/ -lqwt
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/debug/ -lqwt
+else:unix:!macx: LIBS += -L$$PWD/../../../usr/local/qwt-6.1.3/lib/ -lqwt
+
+INCLUDEPATH += $$PWD/../../../usr/local/qwt-6.1.3/include
+DEPENDPATH += $$PWD/../../../usr/local/qwt-6.1.3/include
