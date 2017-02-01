@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget *parent) :
     grid->setMajorPen(QPen(Qt::black,1,Qt::DotLine));
     grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
     grid->attach(ui->qwtPlot);
-    ui->qwtPlot->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, мкс"));
+    ui->qwtPlot->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, с"));
    // ui->qwtPlot->setAxisScale(QwtPlot::xBottom,-0.25,8.25);
     ui->qwtPlot->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U, В"));
    // ui->qwtPlot->setAxisScale(QwtPlot::yLeft,-1.25,1.25);
@@ -92,6 +92,7 @@ void MainWindow::on_pushButton_clicked()
     QDataStream stream;
     QVector<double> yDataDouble(scope.numberOfPoints.at(0));
     uchar filesCount=scope.fileNames.count();
+    double Ts=0;
     stream.setByteOrder(QDataStream::LittleEndian);
     for (int i=0;i<filesCount;i++)
     {
@@ -100,13 +101,14 @@ void MainWindow::on_pushButton_clicked()
         {
             stream.setDevice(&file);
             file.seek(272);
-            xData.resize(scope.numberOfPoints.at(0));
-            yData.resize(scope.numberOfPoints.at(0));
-            for (int j=0; j<scope.numberOfPoints.at(0);j++)
+            xData.resize(scope.numberOfPoints.at(0)/4);
+            yData.resize(scope.numberOfPoints.at(0)/4);
+            Ts=1/scope.sampleRate.at(i);
+            for (unsigned int j=0; j<scope.numberOfPoints.at(0)/4;j++)
             {
                 stream>>yData[j];
-                xData[j]=j;
-                yDataDouble[j]=yData[j];
+                xData[j]=j*Ts;
+                yDataDouble[j]= (((float)(128-(yData[j])))/256*10) - (float)scope.ch1VerticalPosition.at(0)/25.0;
             }
             file.close();
         }
