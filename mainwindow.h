@@ -11,6 +11,11 @@
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
+#include <qwt_plot_magnifier.h>
+#include <qwt_plot_panner.h>
+#include <qwt_scale_div.h>
+#include <qwt_plot_marker.h>
+
 namespace Ui {
 class MainWindow;
 }
@@ -24,6 +29,8 @@ public:
     Scope scope;
     QVector<quint8> yData;
     QVector<double> xData;
+    QVector<double> integral;
+
 
     ~MainWindow();
 
@@ -36,8 +43,12 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QwtLegend *leg;
+    QwtPlotMagnifier *magnifier;
+    QwtPlotPanner *d_panner;
     QwtPlotGrid *grid;
     QwtPlotCurve *curv1,*curv2;
+    QwtScaleDiv *div;
+    QwtPlotMarker *m1;
 
 };
 
