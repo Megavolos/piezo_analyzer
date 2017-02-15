@@ -35,20 +35,21 @@ public:
     QBitArray           ch1DataPresent;
     QBitArray           ch2DataPresent;
     QVector<quint32>    numberOfPoints;
-    QVector<quint64>    timeMult;
+    QVector<qreal>    timeMult;
     QVector<qint64>     delay;
     QVector<qreal>      sampleRate;
     QVector<quint16>    triggerMode;
     QVector<quint8>     triggerSource;
 
     QVector<quint16>    ch1ProbeDiv;
-    QVector<quint32>    ch1VerticalScale;
-    QVector<qint16>     ch1VerticalPosition;
+    QVector<qreal>      ch1VerticalScale;
+    QVector<qreal>      ch1VerticalPosition;
     QVector<quint16>    ch2ProbeDiv;
-    QVector<quint32>    ch2VerticalScale;
-    QVector<qint16>     ch2VerticalPosition;
+    QVector<qreal>      ch2VerticalScale;
+    QVector<qreal>      ch2VerticalPosition;
+    QVector<qreal> data;
     void readHeaders();
-
+    QVector<qreal> recalcSamples(int fileIndex, int channel);
     ~Scope();
 private:
     qint64 getSignedData(QFile*,int offset, int length);

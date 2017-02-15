@@ -61,7 +61,9 @@ void Scope::readHeaders()
     QDataStream stream;
     stream.setByteOrder(QDataStream::LittleEndian);
     uchar filesCount=fileNames.count();
-    quint64 o=0;
+    quint32 scale=0;
+    qint16 pos=0;
+    quint64 divx=0;
     ch1DataPresent.resize(filesCount);
     ch2DataPresent.resize(filesCount);
     numberOfPoints.resize(filesCount);
@@ -92,7 +94,8 @@ void Scope::readHeaders()
             file.seek(numberOfPointsOffset);
             stream>>numberOfPoints[i];
             file.seek(timeMultOffset);
-            stream>>timeMult[i];
+            stream>>divx;
+            timeMult[i]=divx*0.000000000001;
             file.seek(delayOffset);
             stream>>delay[i];
             stream.setFloatingPointPrecision(QDataStream::SinglePrecision);
@@ -119,9 +122,11 @@ void Scope::readHeaders()
                 break;
             }
             file.seek(ch1VerticalScaleOffset);
-            stream>>ch1VerticalScale[i];
+            stream>>scale;
+            ch1VerticalScale[i]=scale*ch1ProbeDiv.at(i)*0.000001;
             file.seek(ch1VerticalPositionOffset);
-            stream>>ch1VerticalPosition[i];
+            stream>>pos;
+            ch1VerticalPosition[i]=(pos/(25.0*ch1ProbeDiv.at(i)))*ch1VerticalScale.at(i);
             file.seek(ch2ProbeDivOffset);
             stream>>ch2ProbeDiv[i];
             switch (ch2ProbeDiv[i]) {
@@ -139,10 +144,54 @@ void Scope::readHeaders()
                 break;
             }
             file.seek(ch2VerticalScaleOffset);
-            stream>>ch2VerticalScale[i];
+            stream>>scale;
+            ch2VerticalScale[i]=scale*ch2ProbeDiv.at(i)*0.000001;
             file.seek(ch2VerticalPositionOffset);
-            stream>>ch2VerticalPosition[i];
+            stream>>pos;
+            ch2VerticalPosition[i]=(pos/(25.0*ch2ProbeDiv.at(i)))*ch2VerticalScale.at(i);
             file.close();
         }
     }
+}
+
+QVector<qreal> Scope::recalcSamples(int fileIndex, int channel)
+{
+    QDataStream stream;
+    int size=numberOfPoints.at(fileIndex);
+
+    QVector<quint8> yData(size);
+    data.clear();
+    data.resize(size);
+    QFile file(fileNames.at(fileIndex));
+    if(file.open(QIODevice::ReadOnly))
+    {
+        stream.setDevice(&file);
+        if (channel==1)
+        {
+            file.seek(272);
+            for (unsigned int i=0; i<numberOfPoints.at(fileIndex);i++)
+            {
+                stream>>yData[i];
+
+                data[i]= ch1VerticalScale.at(fileIndex)*((((float)(128-(yData[i])))/256*10)) - ch1VerticalPosition.at(fileIndex);
+
+            }
+            return data;
+        }
+        if (channel==2)
+        {
+            file.seek(272+numberOfPoints.at(fileIndex));
+            for (unsigned int i=0; i<numberOfPoints.at(fileIndex);i++)
+            {
+                stream>>yData[i];
+
+                data[i]= ch2VerticalScale.at(fileIndex)*((((float)(128-(yData[i])))/256*10)) - ch2VerticalPosition.at(fileIndex);
+
+            }
+            return data;
+        }
+
+    }
+    data.clear();
+    return data;
 }

@@ -83,18 +83,18 @@ void MainWindow::on_actionTest_triggered()
        ui->listWidget->addItem(strl.at(strl.count()-1));
 
        out=out+"Файл " + strl.at(strl.count()-1) + ":\n" +
-               "Канал 1 вкл = " + (scope.ch1DataPresent.at(i) ? "true\n":"false\n")+
-               "Канал 2 вкл = "+(scope.ch2DataPresent.at(i) ? "true\n":"false\n") +
-               "Число точек = " + QString::number(scope.numberOfPoints.at(i))+"\n" +
-               "Деление шкалы Х = " + QString::number(scope.timeMult.at(i)*0.000000000001) + "сек\n" +
-               "Время задержки = " + QString::number(scope.delay.at(i))+"\n" +
-               "Частота дискретизации = " + QString::number(scope.sampleRate.at(i))+"\n" +
-               "Канал 1 делитель щупа = " + QString::number(scope.ch1ProbeDiv.at(i)) +"\n" +
-               "Канал 1 масштаб по вертикали = " + QString::number(scope.ch1VerticalScale.at(i)*scope.ch1ProbeDiv.at(i)*0.000001) +"\n" +
-               "Канал 1 позиция по вертикали = " + QString::number((scope.ch1VerticalPosition.at(i)/(25.0*scope.ch1ProbeDiv.at(i)))*(scope.ch1VerticalScale.at(i)*scope.ch1ProbeDiv.at(i)*0.000001)) +"\n" +
-               "Канал 2 делитель щупа = " + QString::number(scope.ch2ProbeDiv.at(i)) +"\n" +
-               "Канал 2 масштаб по вертикали = " + QString::number(scope.ch2VerticalScale.at(i)*scope.ch2ProbeDiv.at(i)*0.000001) +"\n" +
-               "Канал 2 позиция по вертикали = " + QString::number((scope.ch2VerticalPosition.at(i)/(25.0*scope.ch2ProbeDiv.at(i)))*(scope.ch2VerticalScale.at(i)*scope.ch2ProbeDiv.at(i)*0.000001)) +"\n" + "\n"
+               "Канал 1 вкл = " +                    (scope.ch1DataPresent.at(i) ? "true\n":"false\n")+
+               "Канал 2 вкл = " +                    (scope.ch2DataPresent.at(i) ? "true\n":"false\n") +
+               "Число точек = " +                    QString::number(scope.numberOfPoints.at(i))+"\n" +
+               "Деление шкалы Х = " +                QString::number(scope.timeMult.at(i)) + "сек\n" +
+               "Время задержки = " +                 QString::number(scope.delay.at(i))+"\n" +
+               "Частота дискретизации = " +          QString::number(scope.sampleRate.at(i))+"\n" +
+               "Канал 1 делитель щупа = " +          QString::number(scope.ch1ProbeDiv.at(i)) +"\n" +
+               "Канал 1 масштаб по вертикали = " +   QString::number(scope.ch1VerticalScale.at(i)) +"\n" +
+               "Канал 1 позиция по вертикали = " +   QString::number(scope.ch1VerticalPosition.at(i)) +"\n" +
+               "Канал 2 делитель щупа = " +          QString::number(scope.ch2ProbeDiv.at(i)) +"\n" +
+               "Канал 2 масштаб по вертикали = " +   QString::number(scope.ch2VerticalScale.at(i)) +"\n" +
+               "Канал 2 позиция по вертикали = " +   QString::number(scope.ch2VerticalPosition.at(i)) +"\n" + "\n"
 
                ;
 
@@ -109,13 +109,11 @@ void MainWindow::on_actionTest_triggered()
 void MainWindow::on_pushButton_clicked()
 {
     QDataStream stream;
-    QVector<double> yDataDouble(scope.numberOfPoints.at(0));
+
+    QVector<double> yDataDouble1(scope.numberOfPoints.at(0));
     QVector<double> yDataDouble2(scope.numberOfPoints.at(0));
     uchar filesCount=scope.fileNames.count();
-    float scale2 = (scope.ch2VerticalScale.at(0)*scope.ch2ProbeDiv.at(0)*0.000001);
-    float pos2 = (scope.ch2VerticalPosition.at(0)/(25.0*scope.ch2ProbeDiv.at(0)))*(scope.ch2VerticalScale.at(0)*scope.ch2ProbeDiv.at(0)*0.000001);
-    float scale1 = (scope.ch1VerticalScale.at(0)*scope.ch1ProbeDiv.at(0)*0.000001);
-    float pos1 = (scope.ch1VerticalPosition.at(0)/(25.0*scope.ch1ProbeDiv.at(0)))*(scope.ch1VerticalScale.at(0)*scope.ch1ProbeDiv.at(0)*0.000001);
+
     m1->setLinePen(QPen(Qt::black));
     m1->setLineStyle(QwtPlotMarker::HLine);
     m1->setValue(0,0);
@@ -128,36 +126,22 @@ void MainWindow::on_pushButton_clicked()
         if(file.open(QIODevice::ReadOnly))
         {
             stream.setDevice(&file);
+            xData.clear();
+            xData.resize(scope.numberOfPoints.at(i));
 
-            xData.resize(scope.numberOfPoints.at(0));
-            yData.resize(scope.numberOfPoints.at(0));
-            integral.resize(scope.numberOfPoints.at(0));
             Ts=1/scope.sampleRate.at(i);
-            file.seek(272+scope.numberOfPoints.at(i));
 
-
-            for (unsigned int j=0; j<scope.numberOfPoints.at(0);j++)
+            for (unsigned int j=0; j<scope.numberOfPoints.at(i); j++)
             {
-                stream>>yData[j];
                 xData[j]=j*Ts;
-
-                yDataDouble2[j]= scale2*((((float)(128-(yData[j])))/256*10)) - pos2;
-                //if (j) integral[j]=integral.at(j-1)+yDataDouble.at(j);
             }
-
-            file.seek(272);
-
-            for (unsigned int j=0; j<scope.numberOfPoints.at(0);j++)
-            {
-                stream>>yData[j];
-                yDataDouble[j]= scale1*((((float)(128-(yData[j])))/256*10)) - pos1;
-
-            }
-             curv2->setYAxis(QwtPlot::yLeft);
-             curv2->setSamples(xData,yDataDouble2);
-             curv2->attach(ui->qwtPlot);
-             curv1->setYAxis(QwtPlot::yRight);
-            curv1->setSamples(xData,yDataDouble);
+            yDataDouble1=scope.recalcSamples(i,1);
+            yDataDouble2=scope.recalcSamples(i,2);
+            curv2->setYAxis(QwtPlot::yLeft);
+            curv2->setSamples(xData,yDataDouble2);
+            curv2->attach(ui->qwtPlot);
+            curv1->setYAxis(QwtPlot::yRight);
+            curv1->setSamples(xData,yDataDouble1);
             curv1->attach(ui->qwtPlot);
             file.close();
         }
