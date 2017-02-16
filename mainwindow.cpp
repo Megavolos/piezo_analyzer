@@ -105,7 +105,7 @@ void MainWindow::on_actionTest_triggered()
 void MainWindow::on_pushButton_clicked()
 {
     QDataStream stream;
-
+    bool ok;
 
     uchar filesCount=scope.fileNames.count();
 
@@ -134,7 +134,14 @@ void MainWindow::on_pushButton_clicked()
             }
             yDataDouble1=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
             yDataDouble2=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
-            yDataDouble2 = scope.filter(&yDataDouble2,0.01);            //добавим фильтр
+            if (ui->lpf1_enable->isChecked())
+            {
+                yDataDouble1 = scope.filter(&yDataDouble1,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+            }
+            if (ui->lpf2_enable->isChecked())
+            {
+                yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
+            }
             curv2->setYAxis(QwtPlot::yLeft);
             curv2->setSamples(xData,yDataDouble2);
             curv2->attach(ui->qwtPlot);
@@ -146,4 +153,28 @@ void MainWindow::on_pushButton_clicked()
     }
 
     ui->qwtPlot->replot();
+}
+
+void MainWindow::on_lpf1_enable_toggled(bool checked)
+{
+    if (checked)
+    {
+        ui->coeff1->setEnabled(true);
+    }
+    else
+    {
+        ui->coeff1->setEnabled(false);
+    }
+}
+
+void MainWindow::on_lpf2_enable_toggled(bool checked)
+{
+    if (checked)
+    {
+        ui->coeff2->setEnabled(true);
+    }
+    else
+    {
+        ui->coeff2->setEnabled(false);
+    }
 }

@@ -40,6 +40,10 @@ private slots:
 
     void on_pushButton_clicked();       //слот, обрабатывающий нажатие кнопки "нарисовать"
 
+    void on_lpf1_enable_toggled(bool checked);
+
+    void on_lpf2_enable_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;
     QwtLegend *leg;                     //легенда для графика
