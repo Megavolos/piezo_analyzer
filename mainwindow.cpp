@@ -6,31 +6,30 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
 
-    ui->setupUi(this);
-    leg = new QwtLegend();
-    div = new QwtScaleDiv();
-    leg->setDefaultItemMode(QwtLegendData::ReadOnly);
-    ui->qwtPlot->setTitle("Данные из файлов");
+    ui->setupUi(this);                                          //создание интерфейса MainWindow и всяких кнопок
+
+    leg = new QwtLegend();                                      //легенда
+    leg->setDefaultItemMode(QwtLegendData::ReadOnly);           //нельзя редактировать легенду
+    ui->qwtPlot->setTitle("Данные из файлов");                  //далее интиуитивно понятно
     ui->qwtPlot->insertLegend(leg,QwtPlot::TopLegend);
+
     grid = new QwtPlotGrid;
     grid->enableXMin(true);
     grid->setMajorPen(QPen(Qt::black,1,Qt::DotLine));
     grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
-    m1=new QwtPlotMarker;
 
     grid->attach(ui->qwtPlot);
     ui->qwtPlot->enableAxis(QwtPlot::yRight);
     ui->qwtPlot->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, с"));
-   // ui->qwtPlot->setAxisScale(QwtPlot::xBottom,-0.25,8.25);
     ui->qwtPlot->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U1, В"));
     ui->qwtPlot->setAxisTitle(QwtPlot::yRight,QString::fromLocal8Bit("U2, В"));
-   // ui->qwtPlot->setAxisScale(QwtPlot::yLeft,-1.25,1.25);
+
     QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( ui->qwtPlot->canvas());
     magnifier->setMouseButton(Qt::MidButton);
     QwtPlotPanner *d_panner = new QwtPlotPanner(ui->qwtPlot->canvas() );
     d_panner->setMouseButton( Qt::RightButton );
 
-    curv1 = new QwtPlotCurve(QString("U1(t)"));
+    curv1 = new QwtPlotCurve(QString("U1(t)"));                 //создание кривых
     curv1->setRenderHint(QwtPlotItem::RenderAntialiased);
     curv1->setPen(QPen(Qt::red));
     curv2 = new QwtPlotCurve(QString("U2(t)"));
@@ -38,11 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     curv2->setPen(QPen(Qt::green));
     curv2->setYAxis(QwtPlot::yRight);
 
-    //QwtSymbol *symbol1 = new QwtSymbol();
-    //symbol1->setStyle(QwtSymbol::Ellipse);
-    //symbol1->setPen(QColor(Qt::black));
-    //symbol1->setSize(4);
-   // curv1->setSymbol(symbol1);
+    m1=new QwtPlotMarker;
+
 
 
 }
@@ -66,11 +62,11 @@ void MainWindow::on_actionTest_triggered()
     QString str;
     QStringList strl;
     QString out;
-    scope.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","/media/heavy/60CC-A3D9/b/", "Wave Form (*.wfm)");
+    scope.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","/media/heavy/60CC-A3D9/b/", "Wave Form (*.wfm)"); //открываем файловый диалог и имена файлов загоняем в scope.filenames
 
-    if (!scope.fileNames.isEmpty())
+    if (!scope.fileNames.isEmpty())     //если список не пуст
     {
-        scope.readHeaders();
+        scope.readHeaders();            //читаем заголовки
         for (int i=0;i<scope.fileNames.count();i++)
         {
             str=scope.fileNames.at(i);
@@ -110,8 +106,7 @@ void MainWindow::on_pushButton_clicked()
 {
     QDataStream stream;
 
-    QVector<double> yDataDouble1(scope.numberOfPoints.at(0));
-    QVector<double> yDataDouble2(scope.numberOfPoints.at(0));
+
     uchar filesCount=scope.fileNames.count();
 
     m1->setLinePen(QPen(Qt::black));
@@ -123,20 +118,23 @@ void MainWindow::on_pushButton_clicked()
     for (int i=0;i<filesCount;i++)
     {
         QFile file(scope.fileNames.at(i));
+        QVector<double> yDataDouble1(scope.numberOfPoints.at(i));       //эти векторы будут содержать данные по оси Y для построения графиков
+        QVector<double> yDataDouble2(scope.numberOfPoints.at(i));
         if(file.open(QIODevice::ReadOnly))
         {
-            stream.setDevice(&file);
+            stream.setDevice(&file);                                    //готовим поток
             xData.clear();
-            xData.resize(scope.numberOfPoints.at(i));
+            xData.resize(scope.numberOfPoints.at(i));                   //готовим X
 
-            Ts=1/scope.sampleRate.at(i);
+            Ts=1/scope.sampleRate.at(i);                                //расчитываем период дескритизации
 
             for (unsigned int j=0; j<scope.numberOfPoints.at(i); j++)
             {
-                xData[j]=j*Ts;
+                xData[j]=j*Ts;                                          //расчитываем значения по X
             }
-            yDataDouble1=scope.recalcSamples(i,1);
-            yDataDouble2=scope.recalcSamples(i,2);
+            yDataDouble1=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
+            yDataDouble2=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
+            yDataDouble2 = scope.filter(&yDataDouble2,0.01);            //добавим фильтр
             curv2->setYAxis(QwtPlot::yLeft);
             curv2->setSamples(xData,yDataDouble2);
             curv2->attach(ui->qwtPlot);

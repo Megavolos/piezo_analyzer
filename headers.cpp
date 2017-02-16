@@ -8,52 +8,18 @@ Scope::~Scope()
 {
 
 }
-qint64 Scope::getSignedData(QFile* file, int offset, int length)
-{
-   qint64 data=0;
-   unsigned char c=0;
-   QByteArray temp;
-   file->seek(offset);
-   temp = file->read(length);
 
-   for (unsigned int i=length-1; i>0; i--)
-   {
-       c=temp.at(i);
-       data|=c;
-       data=data<<8;
-   }
-   data|=temp.at(0);
-   return data;
-}
-float Scope::getFloatData(QFile* file, int offset, int length)
-{
-    float data=0;
-    QByteArray temp;
-    file->seek(offset);
-    temp = file->read(length);
-    QDataStream ds(&temp, QIODevice::ReadOnly);
-    ds.setFloatingPointPrecision(QDataStream::SinglePrecision);
-    ds.setByteOrder(QDataStream::LittleEndian);
-    ds>>data;
-    return data;
-}
 
-quint64 Scope::getUnsignedData(QFile* file, int offset, int length)
-{
-   quint64 data=0;
-   unsigned char c=0;
-   QByteArray temp;
-   file->seek(offset);
-   temp = file->read(length);
 
-   for (unsigned int i=length-1; i>0; i--)
-   {
-       c=temp.at(i);
-       data|=c;
-       data=data<<8;
-   }
-   data|=temp.at(0);
-   return data;
+QVector<qreal> Scope::filter(QVector<qreal> *in, qreal coeff )              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
+{
+    QVector<qreal> out(in->size());                                         //Выход фильтра
+    for (int i=1; i<in->size(); i++)
+    {
+        out[i]=coeff*in->at(i) + (1.0-coeff)*out.at(i-1);                   //сам фильтр
+    }
+    return out;
+
 }
 
 void Scope::readHeaders()
@@ -168,19 +134,19 @@ QVector<qreal> Scope::recalcSamples(int fileIndex, int channel)
         stream.setDevice(&file);
         if (channel==1)
         {
-            file.seek(272);
+            file.seek(272);     //отсюда начинаются данные 1 канала
             for (unsigned int i=0; i<numberOfPoints.at(fileIndex);i++)
             {
                 stream>>yData[i];
 
-                data[i]= ch1VerticalScale.at(fileIndex)*((((float)(128-(yData[i])))/256*10)) - ch1VerticalPosition.at(fileIndex);
+                data[i]= ch1VerticalScale.at(fileIndex)*((((float)(128-(yData[i])))/256*10)) - ch1VerticalPosition.at(fileIndex); //хитрая , но правильная формула расчета значений в Вольтах.
 
             }
             return data;
         }
         if (channel==2)
         {
-            file.seek(272+numberOfPoints.at(fileIndex));
+            file.seek(272+numberOfPoints.at(fileIndex));    //отсюда начинаются данные 2 канала
             for (unsigned int i=0; i<numberOfPoints.at(fileIndex);i++)
             {
                 stream>>yData[i];

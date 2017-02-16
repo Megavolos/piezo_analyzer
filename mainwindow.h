@@ -1,12 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
+#include <QMainWindow>                  //класс главного окна
 #include <QFile>
 #include <QDataStream>
-#include <QFileDialog>
+#include <QFileDialog>                  //класс диалогового окна "открыть файл"
 #include "headers.h"
-#include <qwt_plot_canvas.h>
+#include <qwt_plot_canvas.h>            //дальше грузятся необходимые либы библиотеки QWT для построения графиков
 #include <qwt_legend.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_curve.h>
@@ -27,28 +27,27 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     Scope scope;
-    QVector<quint8> yData;
-    QVector<double> xData;
-    QVector<double> integral;
+
+    QVector<double> xData;      //значения по оси x
+
 
 
     ~MainWindow();
 
 private slots:
 
-    void on_actionTest_triggered();
+    void on_actionTest_triggered();     //слот, обрабатывающий нажатие кнопки "добавить файл"
 
-    void on_pushButton_clicked();
+    void on_pushButton_clicked();       //слот, обрабатывающий нажатие кнопки "нарисовать"
 
 private:
     Ui::MainWindow *ui;
-    QwtLegend *leg;
-    QwtPlotMagnifier *magnifier;
-    QwtPlotPanner *d_panner;
-    QwtPlotGrid *grid;
-    QwtPlotCurve *curv1,*curv2;
-    QwtScaleDiv *div;
-    QwtPlotMarker *m1;
+    QwtLegend *leg;                     //легенда для графика
+    QwtPlotMagnifier *magnifier;        //зумер
+    QwtPlotPanner *d_panner;            //перемещатель
+    QwtPlotGrid *grid;                  //сетка
+    QwtPlotCurve *curv1,*curv2;         //две кривые
+    QwtPlotMarker *m1;                  //маркер- горизонтальная линия в 0.
 
 };
 
