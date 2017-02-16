@@ -12,10 +12,10 @@ MainWindow::MainWindow(QWidget *parent) :
     leg->setDefaultItemMode(QwtLegendData::ReadOnly);           //нельзя редактировать легенду
     ui->qwtPlot->setTitle("Данные из файлов");                  //далее интиуитивно понятно
     ui->qwtPlot->insertLegend(leg,QwtPlot::TopLegend);
-
+    ui->qwtPlot->setCanvasBackground(Qt::black);
     grid = new QwtPlotGrid;
     grid->enableXMin(true);
-    grid->setMajorPen(QPen(Qt::black,1,Qt::DotLine));
+    grid->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
     grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
 
     grid->attach(ui->qwtPlot);
@@ -136,7 +136,7 @@ void MainWindow::on_pushButton_clicked()
             {
                 xData[j]=j*Ts;                                          //расчитываем значения по X
             }
-
+//проход по кнопкам. можно красивей сделать проход, но сейчас болит нога, и мозги в кучу заплетаются.
             if (ui->data1_mems->isChecked())
             {
                 yDataDouble1=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
@@ -147,7 +147,7 @@ void MainWindow::on_pushButton_clicked()
             }
             if (ui->data2_mems->isChecked())
             {
-                yDataDouble2=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
+                yDataDouble2=scope.recalcSamples(i,1);
                 if (ui->lpf2_enable->isChecked())
                 {
                     yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
@@ -155,7 +155,7 @@ void MainWindow::on_pushButton_clicked()
             }
             if (ui->data1_piezo->isChecked())
             {
-                yDataDouble1=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
+                yDataDouble1=scope.recalcSamples(i,2);
                 if (ui->lpf1_enable->isChecked())
                 {
                     yDataDouble1 = scope.filter(&yDataDouble1,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
@@ -163,7 +163,7 @@ void MainWindow::on_pushButton_clicked()
             }
             if (ui->data2_piezo->isChecked())
             {
-                yDataDouble2=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
+                yDataDouble2=scope.recalcSamples(i,2);
                 if (ui->lpf2_enable->isChecked())
                 {
                     yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 1
