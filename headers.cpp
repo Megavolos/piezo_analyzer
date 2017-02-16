@@ -161,3 +161,19 @@ QVector<qreal> Scope::recalcSamples(int fileIndex, int channel)
     data.clear();
     return data;
 }
+QVector<qreal> Scope::integrate(QVector<qreal> *in, qreal zeroLevel)
+{
+    QVector<qreal> out(in->size());
+    for (int i=1; i<in->size(); i++)
+    {
+        if (in->at(i)>zeroLevel)
+        {
+            out[i]=in->at(i) + out.at(i-1);
+        }
+        else
+        {
+            out[i]=0;
+        }
+    }
+    return out;
+}

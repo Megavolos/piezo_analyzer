@@ -45,14 +45,18 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+
+
     delete ui;
+
     delete leg;
     delete grid;
     delete curv1;
     delete curv2;
+
     delete magnifier;
-    delete d_panner;
     delete m1;
+
 }
 
 
@@ -132,16 +136,59 @@ void MainWindow::on_pushButton_clicked()
             {
                 xData[j]=j*Ts;                                          //расчитываем значения по X
             }
-            yDataDouble1=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
-            yDataDouble2=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
-            if (ui->lpf1_enable->isChecked())
+
+            if (ui->data1_mems->isChecked())
             {
-                yDataDouble1 = scope.filter(&yDataDouble1,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                yDataDouble1=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
+                if (ui->lpf1_enable->isChecked())
+                {
+                    yDataDouble1 = scope.filter(&yDataDouble1,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
             }
-            if (ui->lpf2_enable->isChecked())
+            if (ui->data2_mems->isChecked())
             {
-                yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
+                yDataDouble2=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
+                if (ui->lpf2_enable->isChecked())
+                {
+                    yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
+                }
             }
+            if (ui->data1_piezo->isChecked())
+            {
+                yDataDouble1=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
+                if (ui->lpf1_enable->isChecked())
+                {
+                    yDataDouble1 = scope.filter(&yDataDouble1,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+            }
+            if (ui->data2_piezo->isChecked())
+            {
+                yDataDouble2=scope.recalcSamples(i,2);                      //переводим семплы в вольты для 1 канала
+                if (ui->lpf2_enable->isChecked())
+                {
+                    yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+            }
+            if (ui->data1_integrate->isChecked())
+            {
+                yDataDouble1=scope.recalcSamples(i,2);
+                if (ui->lpf1_enable->isChecked())
+                {
+                    yDataDouble1 = scope.filter(&yDataDouble1,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+                yDataDouble1=scope.integrate(&yDataDouble1,ui->zeroLevel1->text().toFloat());
+            }
+            if (ui->data2_integrate->isChecked())
+            {
+                yDataDouble2=scope.recalcSamples(i,2);
+                if (ui->lpf2_enable->isChecked())
+                {
+                    yDataDouble2 = scope.filter(&yDataDouble2,ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
+                }
+                yDataDouble2=scope.integrate(&yDataDouble2,ui->zeroLevel1->text().toFloat());
+            }
+
+
             curv2->setYAxis(QwtPlot::yLeft);
             curv2->setSamples(xData,yDataDouble2);
             curv2->attach(ui->qwtPlot);
@@ -153,6 +200,7 @@ void MainWindow::on_pushButton_clicked()
     }
 
     ui->qwtPlot->replot();
+
 }
 
 void MainWindow::on_lpf1_enable_toggled(bool checked)
