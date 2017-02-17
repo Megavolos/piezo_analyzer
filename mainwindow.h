@@ -48,6 +48,8 @@ private:
     Ui::MainWindow *ui;
     QwtLegend *leg;                     //легенда для графика
     QwtPlotMagnifier *magnifier;        //зумер
+    QwtPlotMagnifier *zoom_x;
+    QwtPlotMagnifier *zoom_y1;
     QwtPlotPanner *d_panner;            //перемещатель
     QwtPlotGrid *grid;                  //сетка
     QwtPlotCurve *curv1,*curv2;         //две кривые

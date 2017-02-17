@@ -24,8 +24,20 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->qwtPlot->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U1, В"));
     ui->qwtPlot->setAxisTitle(QwtPlot::yRight,QString::fromLocal8Bit("U2, В"));
 
-    QwtPlotMagnifier *magnifier = new QwtPlotMagnifier( ui->qwtPlot->canvas());
-    magnifier->setMouseButton(Qt::MidButton);
+    QwtPlotMagnifier *zoom_x = new QwtPlotMagnifier( ui->qwtPlot->canvas());
+    QwtPlotMagnifier *zoom_y1 = new QwtPlotMagnifier( ui->qwtPlot->canvas() );
+   // QwtPlotMagnifier *zoom_y2 = new QwtPlotMagnifier( ui->qwtPlot->canvas() );
+    zoom_x->setMouseButton(Qt::MidButton);
+    zoom_x->setWheelModifiers(Qt::ShiftModifier);
+    zoom_x->setAxisEnabled(QwtPlot::xBottom, true);
+    zoom_x->setAxisEnabled(QwtPlot::yRight ,false);
+    zoom_x->setAxisEnabled(QwtPlot::yLeft ,false);
+    zoom_y1->setMouseButton(Qt::MidButton);
+    zoom_y1->setWheelModifiers(Qt::ControlModifier);
+    zoom_y1->setAxisEnabled(QwtPlot::xBottom,false);
+    zoom_y1->setAxisEnabled(QwtPlot::yRight,true);
+    zoom_y1->setAxisEnabled(QwtPlot::yLeft,true);
+
     QwtPlotPanner *d_panner = new QwtPlotPanner(ui->qwtPlot->canvas() );
     d_panner->setMouseButton( Qt::RightButton );
 
@@ -53,8 +65,9 @@ MainWindow::~MainWindow()
     delete grid;
     delete curv1;
     delete curv2;
-
-    delete magnifier;
+    delete zoom_x;
+    delete zoom_y1;
+    //delete magnifier;
     delete m1;
 
 }
