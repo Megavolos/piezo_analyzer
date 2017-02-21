@@ -48,14 +48,16 @@ private slots:
 
     void on_draw_button_clicked();
 
+    void on_draw_button2_clicked();
+
 private:
     Ui::MainWindow *ui;
-    QwtLegend *leg;                     //легенда для графика
+    QwtLegend *leg, *leg1, *leg2;                     //легенда для графика
     QwtPlotMagnifier *magnifier;        //зумер
-    QwtPlotMagnifier *zoom_x;
-    QwtPlotMagnifier *zoom_y1;
-    QwtPlotPanner *d_panner;            //перемещатель
-    QwtPlotGrid *grid;                  //сетка
+    QwtPlotMagnifier *zoom_x, *zoom_x1,*zoom_x2;
+    QwtPlotMagnifier *zoom_y, *zoom_y1, *zoom_y2;
+    QwtPlotPanner *d_panner,*d_panner1,*d_panner2;            //перемещатель
+    QwtPlotGrid *grid,*grid1,*grid2;                  //сетка
     QwtPlotCurve *curv1,*curv2;         //две кривые
     QwtPlotMarker *m1;                  //маркер- горизонтальная линия в 0.
     QVector<QwtPlotCurve*> curves;

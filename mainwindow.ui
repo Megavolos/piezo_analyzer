@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>793</width>
-    <height>616</height>
+    <width>886</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -35,8 +35,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>751</width>
-             <height>470</height>
+             <width>844</width>
+             <height>441</height>
             </rect>
            </property>
            <layout class="QGridLayout" name="gridLayout_2">
@@ -250,7 +250,7 @@
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
-        <string>График</string>
+        <string>Общий график</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
         <item row="4" column="2">
@@ -444,6 +444,26 @@
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Страница</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_7">
+        <item row="1" column="0">
+         <widget class="QwtPlot" name="qwtPlot_data2"/>
+        </item>
+        <item row="0" column="0">
+         <widget class="QwtPlot" name="qwtPlot_data1"/>
+        </item>
+        <item row="2" column="0">
+         <widget class="QPushButton" name="draw_button2">
+          <property name="text">
+           <string>Нарисовать</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -453,7 +473,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>793</width>
+     <width>886</width>
      <height>19</height>
     </rect>
    </property>

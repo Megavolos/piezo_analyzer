@@ -10,36 +10,103 @@ MainWindow::MainWindow(QWidget *parent) :
 
     leg = new QwtLegend();                                      //легенда
     leg->setDefaultItemMode(QwtLegendData::ReadOnly);           //нельзя редактировать легенду
+    leg1 = new QwtLegend();                                      //легенда
+    leg1->setDefaultItemMode(QwtLegendData::ReadOnly);
+    leg2 = new QwtLegend();                                      //легенда
+    leg2->setDefaultItemMode(QwtLegendData::ReadOnly);
     ui->qwtPlot->setTitle("Данные из файлов");                  //далее интиуитивно понятно
     ui->qwtPlot->insertLegend(leg,QwtPlot::TopLegend);
     ui->qwtPlot->setCanvasBackground(Qt::black);
+    ui->qwtPlot_data1->setTitle("Данные из файлов");                  //далее интиуитивно понятно
+    ui->qwtPlot_data1->insertLegend(leg1,QwtPlot::TopLegend);
+    ui->qwtPlot_data1->setCanvasBackground(Qt::black);
+   // ui->qwtPlot_data2->setTitle("Данные из файлов");                  //далее интиуитивно понятно
+   // ui->qwtPlot_data2->insertLegend(leg2,QwtPlot::TopLegend);
+    ui->qwtPlot_data2->setCanvasBackground(Qt::black);
     grid = new QwtPlotGrid;
     grid->enableXMin(true);
     grid->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
     grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
 
+    grid1 = new QwtPlotGrid;
+    grid1->enableXMin(true);
+    grid1->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
+    grid1->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
+
+    grid2 = new QwtPlotGrid;
+    grid2->enableXMin(true);
+    grid2->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
+    grid2->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
+
     grid->attach(ui->qwtPlot);
+    grid1->attach(ui->qwtPlot_data1);
+    grid2->attach(ui->qwtPlot_data2);
+
     ui->qwtPlot->enableAxis(QwtPlot::yRight);
     ui->qwtPlot->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, с"));
     ui->qwtPlot->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U1, В"));
     ui->qwtPlot->setAxisTitle(QwtPlot::yRight,QString::fromLocal8Bit("U2, В"));
 
+    //ui->qwtPlot_data1->enableAxis(QwtPlot::yRight);
+  //  ui->qwtPlot_data1->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, с"));
+    ui->qwtPlot_data1->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U1, В"));
+  //  ui->qwtPlot_data1->setAxisTitle(QwtPlot::yRight,QString::fromLocal8Bit("U2, В"));
+
+    //ui->qwtPlot_data2->enableAxis(QwtPlot::yRight);
+    ui->qwtPlot_data2->setAxisTitle(QwtPlot::xBottom,QString::fromLocal8Bit("t, с"));
+    //ui->qwtPlot_data2->setAxisTitle(QwtPlot::yLeft,QString::fromLocal8Bit("U1, В"));
+   // ui->qwtPlot_data2->setAxisTitle(QwtPlot::yRight,QString::fromLocal8Bit("U2, В"));
+
     QwtPlotMagnifier *zoom_x = new QwtPlotMagnifier( ui->qwtPlot->canvas());
-    QwtPlotMagnifier *zoom_y1 = new QwtPlotMagnifier( ui->qwtPlot->canvas() );
+    QwtPlotMagnifier *zoom_y = new QwtPlotMagnifier( ui->qwtPlot->canvas() );
+
+    QwtPlotMagnifier *zoom_x1 = new QwtPlotMagnifier( ui->qwtPlot_data1->canvas());
+    QwtPlotMagnifier *zoom_y1 = new QwtPlotMagnifier( ui->qwtPlot_data1->canvas() );
+
+    QwtPlotMagnifier *zoom_x2 = new QwtPlotMagnifier( ui->qwtPlot_data2->canvas());
+    QwtPlotMagnifier *zoom_y2 = new QwtPlotMagnifier( ui->qwtPlot_data2->canvas() );
    // QwtPlotMagnifier *zoom_y2 = new QwtPlotMagnifier( ui->qwtPlot->canvas() );
     zoom_x->setMouseButton(Qt::MidButton);
     zoom_x->setWheelModifiers(Qt::ShiftModifier);
     zoom_x->setAxisEnabled(QwtPlot::xBottom, true);
     zoom_x->setAxisEnabled(QwtPlot::yRight ,false);
     zoom_x->setAxisEnabled(QwtPlot::yLeft ,false);
+    zoom_y->setMouseButton(Qt::MidButton);
+    zoom_y->setWheelModifiers(Qt::ControlModifier);
+    zoom_y->setAxisEnabled(QwtPlot::xBottom,false);
+    zoom_y->setAxisEnabled(QwtPlot::yRight,true);
+    zoom_y->setAxisEnabled(QwtPlot::yLeft,true);
+
+    zoom_x1->setMouseButton(Qt::MidButton);
+    zoom_x1->setWheelModifiers(Qt::ShiftModifier);
+    zoom_x1->setAxisEnabled(QwtPlot::xBottom, true);
+    zoom_x1->setAxisEnabled(QwtPlot::yRight ,false);
+    zoom_x1->setAxisEnabled(QwtPlot::yLeft ,false);
     zoom_y1->setMouseButton(Qt::MidButton);
     zoom_y1->setWheelModifiers(Qt::ControlModifier);
     zoom_y1->setAxisEnabled(QwtPlot::xBottom,false);
     zoom_y1->setAxisEnabled(QwtPlot::yRight,true);
     zoom_y1->setAxisEnabled(QwtPlot::yLeft,true);
 
+    zoom_x2->setMouseButton(Qt::MidButton);
+    zoom_x2->setWheelModifiers(Qt::ShiftModifier);
+    zoom_x2->setAxisEnabled(QwtPlot::xBottom, true);
+    zoom_x2->setAxisEnabled(QwtPlot::yRight ,false);
+    zoom_x2->setAxisEnabled(QwtPlot::yLeft ,false);
+    zoom_y2->setMouseButton(Qt::MidButton);
+    zoom_y2->setWheelModifiers(Qt::ControlModifier);
+    zoom_y2->setAxisEnabled(QwtPlot::xBottom,false);
+    zoom_y2->setAxisEnabled(QwtPlot::yRight,true);
+    zoom_y2->setAxisEnabled(QwtPlot::yLeft,true);
+
     QwtPlotPanner *d_panner = new QwtPlotPanner(ui->qwtPlot->canvas() );
+    QwtPlotPanner *d_panner1 = new QwtPlotPanner(ui->qwtPlot_data1->canvas() );
+    QwtPlotPanner *d_panner2 = new QwtPlotPanner(ui->qwtPlot_data2->canvas() );
+
     d_panner->setMouseButton( Qt::RightButton );
+    d_panner1->setMouseButton( Qt::RightButton );
+    d_panner2->setMouseButton( Qt::RightButton );
+
 
     curv1 = new QwtPlotCurve(QString("U1(t)"));                 //создание кривых
     curv1->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -66,7 +133,7 @@ MainWindow::~MainWindow()
     delete curv1;
     delete curv2;
     //delete zoom_x;
-    //delete zoom_y1;
+    //delete zoom_y;
     //delete magnifier;
     delete m1;
 
@@ -140,32 +207,7 @@ void MainWindow::on_addFileButton_triggered()
 
             curves.at(2*i+1)->setRenderHint(QwtPlotItem::RenderAntialiased);
 
-            switch (i) {
-            case 0:
-                curves.at(0)->setPen(QPen(Qt::red,2,Qt::DashLine));
-                curves.at(1)->setPen(QPen(Qt::red,1,Qt::SolidLine));
-                break;
-            case 1:
-                curves.at(2)->setPen(QPen(Qt::blue,2,Qt::DashLine));
-                curves.at(3)->setPen(QPen(Qt::blue,1,Qt::SolidLine));
-                break;
-            case 2:
-                curves.at(4)->setPen(QPen(Qt::yellow,Qt::DashLine));
-                curves.at(5)->setPen(QPen(Qt::yellow,1,Qt::SolidLine));
-                break;
-            case 3:
-                curves.at(6)->setPen(QPen(Qt::white,2,Qt::DashLine));
-                curves.at(7)->setPen(QPen(Qt::white,1,Qt::SolidLine));
-                break;
-            case 4:
-                curves.at(8)->setPen(QPen(Qt::green,2,Qt::DashLine));
-                curves.at(9)->setPen(QPen(Qt::green,1,Qt::SolidLine));
-                break;
-            case 5:
-                curves.at(10)->setPen(QPen(Qt::magenta,2,Qt::DashLine));
-                curves.at(11)->setPen(QPen(Qt::magenta,1,Qt::SolidLine));
-                break;
-            }
+
 
         }
         ui->textBrowser->setText(out);
@@ -192,7 +234,32 @@ void MainWindow::on_draw_button_clicked()
     {
         QFile file(scope.fileNames.at(i));
         QVector<QVector<double>> yData;       //эти векторы будут содержать данные по оси Y для построения графиков
-
+        switch (i) {
+        case 0:
+            curves.at(0)->setPen(QPen(Qt::red,2,Qt::DashLine));
+            curves.at(1)->setPen(QPen(Qt::darkRed ,2,Qt::SolidLine));
+            break;
+        case 1:
+            curves.at(2)->setPen(QPen(Qt::blue,2,Qt::DashLine));
+            curves.at(3)->setPen(QPen(Qt::darkBlue,2,Qt::SolidLine));
+            break;
+        case 2:
+            curves.at(4)->setPen(QPen(Qt::yellow,2,Qt::DashLine));
+            curves.at(5)->setPen(QPen(Qt::darkYellow,1,Qt::SolidLine));
+            break;
+        case 3:
+            curves.at(6)->setPen(QPen(Qt::white,2,Qt::DashLine));
+            curves.at(7)->setPen(QPen(Qt::lightGray,2,Qt::SolidLine));
+            break;
+        case 4:
+            curves.at(8)->setPen(QPen(Qt::green,2,Qt::DashLine));
+            curves.at(9)->setPen(QPen(Qt::darkGreen ,2,Qt::SolidLine));
+            break;
+        case 5:
+            curves.at(10)->setPen(QPen(Qt::magenta,2,Qt::DashLine));
+            curves.at(11)->setPen(QPen(Qt::darkMagenta,2,Qt::SolidLine));
+            break;
+        }
 
         if(file.open(QIODevice::ReadOnly))
         {
@@ -275,5 +342,135 @@ void MainWindow::on_draw_button_clicked()
     }
 
     ui->qwtPlot->replot();
+
+}
+
+void MainWindow::on_draw_button2_clicked()
+{
+    QDataStream stream;
+    bool ok;
+
+    uchar filesCount=scope.fileNames.count();
+
+    double Ts=0;
+    stream.setByteOrder(QDataStream::LittleEndian);
+    for (int i=0;i<filesCount;i++)
+    {
+
+
+        switch (i) {
+        case 0:
+            curves.at(0)->setPen(QPen(Qt::red,2,Qt::SolidLine));
+            curves.at(1)->setPen(QPen(Qt::red ,2,Qt::SolidLine));
+            break;
+        case 1:
+            curves.at(2)->setPen(QPen(Qt::blue,2,Qt::SolidLine));
+            curves.at(3)->setPen(QPen(Qt::blue,2,Qt::SolidLine));
+            break;
+        case 2:
+            curves.at(4)->setPen(QPen(Qt::yellow,2,Qt::SolidLine));
+            curves.at(5)->setPen(QPen(Qt::yellow,1,Qt::SolidLine));
+            break;
+        case 3:
+            curves.at(6)->setPen(QPen(Qt::white,2,Qt::SolidLine));
+            curves.at(7)->setPen(QPen(Qt::white,2,Qt::SolidLine));
+            break;
+        case 4:
+            curves.at(8)->setPen(QPen(Qt::green,2,Qt::SolidLine));
+            curves.at(9)->setPen(QPen(Qt::green ,2,Qt::SolidLine));
+            break;
+        case 5:
+            curves.at(10)->setPen(QPen(Qt::magenta,2,Qt::SolidLine));
+            curves.at(11)->setPen(QPen(Qt::magenta,2,Qt::SolidLine));
+            break;
+        }
+        QFile file(scope.fileNames.at(i));
+        QVector<QVector<double>> yData;       //эти векторы будут содержать данные по оси Y для построения графиков
+
+
+        if(file.open(QIODevice::ReadOnly))
+        {
+            yData.resize(filesCount*2);
+            yData[2*i].resize(scope.numberOfPoints.at(i));
+            yData[2*i+1].resize(scope.numberOfPoints.at(i));
+            stream.setDevice(&file);                                    //готовим поток
+            xData.clear();
+            xData.resize(scope.numberOfPoints.at(i));                   //готовим X
+
+            Ts=1/scope.sampleRate.at(i);                                //расчитываем период дескритизации
+
+            for (unsigned int j=0; j<scope.numberOfPoints.at(i); j++)
+            {
+                xData[j]=j*Ts;                                          //расчитываем значения по X
+            }
+//проход по кнопкам. можно красивей сделать проход, но сейчас болит нога, и мозги в кучу заплетаются.
+            if (ui->data1_mems->isChecked())
+            {
+                yData[2*i]=scope.recalcSamples(i,1);                      //переводим семплы в вольты для 1 канала
+                if (ui->lpf1_enable->isChecked())
+                {
+                     yData[2*i] = scope.filter(&yData[2*i],ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+            }
+            if (ui->data2_mems->isChecked())
+            {
+                yData[2*i+1]=scope.recalcSamples(i,1);
+                if (ui->lpf2_enable->isChecked())
+                {
+                    yData[2*i+1] = scope.filter(&yData[2*i+1],ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
+                }
+            }
+            if (ui->data1_piezo->isChecked())
+            {
+                yData[2*i]=scope.recalcSamples(i,2);
+                if (ui->lpf1_enable->isChecked())
+                {
+                    yData[2*i] = scope.filter(&yData[2*i],ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+            }
+            if (ui->data2_piezo->isChecked())
+            {
+                yData[2*i+1]=scope.recalcSamples(i,2);
+                if (ui->lpf2_enable->isChecked())
+                {
+                    yData[2*i+1] = scope.filter(&yData[2*i+1],ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+            }
+            if (ui->data1_integrate->isChecked())
+            {
+                yData[2*i]=scope.recalcSamples(i,2);
+                if (ui->lpf1_enable->isChecked())
+                {
+                    yData[2*i] = scope.filter(&yData[2*i],ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+                }
+                yData[2*i]=scope.integrate(&yData[2*i],ui->zeroLevel1->text().toFloat());
+            }
+            if (ui->data2_integrate->isChecked())
+            {
+                yData[2*i+1]=scope.recalcSamples(i,2);
+                if (ui->lpf2_enable->isChecked())
+                {
+                    yData[2*i+1] = scope.filter(&yData[2*i+1],ui->coeff2->text().toFloat(&ok));            //добавим фильтр на канал 2
+                }
+                yData[2*i+1]=scope.integrate(&yData[2*i+1],ui->zeroLevel1->text().toFloat());
+            }
+
+            curves.at(2*i)->setYAxis(QwtPlot::yLeft);
+            //curv2->setYAxis(QwtPlot::yLeft);
+            curves.at(2*i)->setSamples(xData,yData[2*i]);
+            curves.at(2*i)->attach(ui->qwtPlot_data1);
+            curves.at(2*i+1)->setYAxis(QwtPlot::yLeft);
+            curves.at(2*i+1)->setSamples(xData,yData[2*i+1]);
+            curves.at(2*i+1)->attach(ui->qwtPlot_data2);
+            ui->qwtPlot_data1->setAxisAutoScale(QwtPlot::yLeft,true);
+            ui->qwtPlot_data2->setAxisAutoScale(QwtPlot::yLeft,true);
+           // ui->qwtPlot_data1->axisWidget()
+            file.close();
+        }
+    }
+
+    ui->qwtPlot_data1->replot();
+    ui->qwtPlot_data2->replot();
+
 
 }
