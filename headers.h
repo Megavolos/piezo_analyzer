@@ -31,6 +31,7 @@ dataBeginOffset=272
 
 } ;
 
+
 class Scope
 {
 public:

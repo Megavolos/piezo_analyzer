@@ -36,13 +36,17 @@ public:
 
 private slots:
 
-    void on_actionTest_triggered();     //слот, обрабатывающий нажатие кнопки "добавить файл"
 
-    void on_pushButton_clicked();       //слот, обрабатывающий нажатие кнопки "нарисовать"
+
+
 
     void on_lpf1_enable_toggled(bool checked);
 
     void on_lpf2_enable_toggled(bool checked);
+
+    void on_addFileButton_triggered();
+
+    void on_draw_button_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -54,6 +58,7 @@ private:
     QwtPlotGrid *grid;                  //сетка
     QwtPlotCurve *curv1,*curv2;         //две кривые
     QwtPlotMarker *m1;                  //маркер- горизонтальная линия в 0.
+    QVector<QwtPlotCurve*> curves;
 
 };
 
