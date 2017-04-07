@@ -6,18 +6,24 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 
 TARGET = piezo_analyzer
 TEMPLATE = app
-
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT       += widgets serialport
+} else {
+    include($$QTSERIALPORT_PROJECT_ROOT/src/serialport/qt4support/serialport.prf)
+}
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    headers.cpp
+    headers.cpp \
+    rs232plot.cpp
 
 HEADERS  += mainwindow.h \
-    headers.h
+    headers.h \
+    rs232plot.h
 
 FORMS    += mainwindow.ui
 

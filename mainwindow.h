@@ -15,6 +15,8 @@
 #include <qwt_plot_panner.h>
 #include <qwt_scale_div.h>
 #include <qwt_plot_marker.h>
+#include <QtSerialPort/QSerialPort>
+#include <QtSerialPort/QSerialPortInfo>
 
 namespace Ui {
 class MainWindow;
@@ -61,7 +63,8 @@ private:
     QwtPlotCurve *curv1,*curv2;         //две кривые
     QwtPlotMarker *m1;                  //маркер- горизонтальная линия в 0.
     QVector<QwtPlotCurve*> curves;
-
+    QSerialPortInfo serialPortInfo;
+    QList<QSerialPortInfo> serialPorts;
 };
 
 

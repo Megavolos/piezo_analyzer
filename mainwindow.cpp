@@ -118,6 +118,17 @@ MainWindow::MainWindow(QWidget *parent) :
 
     m1=new QwtPlotMarker;
 
+    serialPorts=serialPortInfo.availablePorts();
+    for (const QSerialPortInfo &info: serialPorts )
+    {
+        ui->portsBox->addItem(info.portName());
+    }
+    for (const qint32 &bauds: QSerialPortInfo::standardBaudRates() )
+    {
+        ui->speedBox->addItem(QString::number(bauds));
+    }
+
+
 
 
 }
