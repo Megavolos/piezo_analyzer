@@ -1,13 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+void MainWindow::setDataSource(QString source)
+{
+    dataSource=source;
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
 
-    ui->setupUi(this);                                          //создание интерфейса MainWindow и всяких кнопок
-
+    ui->setupUi(this);
+    ui->actionStartRS232->setEnabled(false);
+    ui->actionStopRS232->setEnabled(false);
+    //создание интерфейса MainWindow и всяких кнопок
+    setDataSource(ui->filesRadioButton->text());
+    portopened = false;
     leg = new QwtLegend();                                      //легенда
     leg->setDefaultItemMode(QwtLegendData::ReadOnly);           //нельзя редактировать легенду
     leg1 = new QwtLegend();                                      //легенда
@@ -108,15 +116,13 @@ MainWindow::MainWindow(QWidget *parent) :
     d_panner2->setMouseButton( Qt::RightButton );
 
 
-    curv1 = new QwtPlotCurve(QString("U1(t)"));                 //создание кривых
-    curv1->setRenderHint(QwtPlotItem::RenderAntialiased);
-    curv1->setPen(QPen(Qt::red));
-    curv2 = new QwtPlotCurve(QString("U2(t)"));
-    curv2->setRenderHint(QwtPlotItem::RenderAntialiased);
-    curv2->setPen(QPen(Qt::green));
-    curv2->setYAxis(QwtPlot::yRight);
+
 
     m1=new QwtPlotMarker;
+    m1->setLinePen(QPen(Qt::black));
+    m1->setLineStyle(QwtPlotMarker::HLine);
+    m1->setValue(0,0);
+    m1->attach(ui->qwtPlot);
 
     serialPorts=serialPortInfo.availablePorts();
     for (const QSerialPortInfo &info: serialPorts )
@@ -127,12 +133,29 @@ MainWindow::MainWindow(QWidget *parent) :
     {
         ui->speedBox->addItem(QString::number(bauds));
     }
-
-
+    QThread *thread_New = new QThread;//Создаем поток для порта платы
+    Port *PortNew = new Port(this);//Создаем обьект по классу
+    PortNew->moveToThread(thread_New);//помешаем класс  в поток
+    PortNew->thisPort.moveToThread(thread_New);//Помещаем сам порт в поток
+    connect(PortNew, SIGNAL(error_(QString)), this, SLOT(Print(QString)));//Лог ошибок
+    connect(thread_New, SIGNAL(started()), PortNew, SLOT(process_Port()));//Переназначения метода run
+    connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(quit()));//Переназначение метода выход
+    connect(thread_New, SIGNAL(finished()), PortNew, SLOT(deleteLater()));//Удалить к чертям поток
+    connect(PortNew, SIGNAL(finished_Port()), thread_New, SLOT(deleteLater()));//Удалить к чертям поток
+    connect(this,SIGNAL(savesettings(QString,int,int,int,int,int)),PortNew,SLOT(Write_Settings_Port(QString,int,int,int,int,int)));//Слот - ввод настроек!
+    connect(ui->actionStartRS232, SIGNAL(triggered(bool)),PortNew,SLOT(ConnectPort()));
+    connect(ui->actionStopRS232, SIGNAL(triggered(bool)),PortNew,SLOT(DisconnectPort()));
+    connect(PortNew, SIGNAL(outPort(QString)), this, SLOT(Print(QString)));//Лог ошибок
+    connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
+    thread_New->start();
 
 
 }
-
+void MainWindow::Print(QString data)
+{
+   // ui->consol->textCursor().insertText(data+'\r'); // Вывод текста в консоль
+   // ui->consol->moveCursor(QTextCursor::End);//Scroll
+}
 MainWindow::~MainWindow()
 {
 
@@ -141,11 +164,6 @@ MainWindow::~MainWindow()
 
     delete leg;
     delete grid;
-    delete curv1;
-    delete curv2;
-    //delete zoom_x;
-    //delete zoom_y;
-    //delete magnifier;
     delete m1;
 
 }
@@ -183,6 +201,7 @@ void MainWindow::on_addFileButton_triggered()
     QString str;
     QStringList strl;
     QString out;
+    emptyItems=0;
     scope.fileNames = QFileDialog::getOpenFileNames(this,"Добавить файлы","/media/heavy/60CC-A3D9/b/", "Wave Form (*.wfm)"); //открываем файловый диалог и имена файлов загоняем в scope.filenames
 
     if (!scope.fileNames.isEmpty())     //если список не пуст
@@ -227,51 +246,48 @@ void MainWindow::on_addFileButton_triggered()
     }
 
 }
-
-void MainWindow::on_draw_button_clicked()
+void MainWindow::setCurvesStyle(uchar i)
 {
-    QDataStream stream;
-    bool ok;
+    switch (i) {
+    case 0:
+        curves.at(0)->setPen(QPen(Qt::red,2,Qt::DashLine));
+        curves.at(1)->setPen(QPen(Qt::darkRed ,2,Qt::SolidLine));
+        break;
+    case 1:
+        curves.at(2)->setPen(QPen(Qt::blue,2,Qt::DashLine));
+        curves.at(3)->setPen(QPen(Qt::darkBlue,2,Qt::SolidLine));
+        break;
+    case 2:
+        curves.at(4)->setPen(QPen(Qt::yellow,2,Qt::DashLine));
+        curves.at(5)->setPen(QPen(Qt::darkYellow,1,Qt::SolidLine));
+        break;
+    case 3:
+        curves.at(6)->setPen(QPen(Qt::white,2,Qt::DashLine));
+        curves.at(7)->setPen(QPen(Qt::lightGray,2,Qt::SolidLine));
+        break;
+    case 4:
+        curves.at(8)->setPen(QPen(Qt::green,2,Qt::DashLine));
+        curves.at(9)->setPen(QPen(Qt::darkGreen ,2,Qt::SolidLine));
+        break;
+    case 5:
+        curves.at(10)->setPen(QPen(Qt::magenta,2,Qt::DashLine));
+        curves.at(11)->setPen(QPen(Qt::darkMagenta,2,Qt::SolidLine));
+        break;
+    }
+}
 
-    uchar filesCount=scope.fileNames.count();
-
-    m1->setLinePen(QPen(Qt::black));
-    m1->setLineStyle(QwtPlotMarker::HLine);
-    m1->setValue(0,0);
-    m1->attach(ui->qwtPlot);
+void MainWindow::readDataFromFiles()
+{
     double Ts=0;
+    bool ok;
+    QDataStream stream;
+    uchar filesCount=scope.fileNames.count();
+    setCurvesStyle(filesCount-1);
     stream.setByteOrder(QDataStream::LittleEndian);
     for (int i=0;i<filesCount;i++)
     {
         QFile file(scope.fileNames.at(i));
         QVector<QVector<double>> yData;       //эти векторы будут содержать данные по оси Y для построения графиков
-        switch (i) {
-        case 0:
-            curves.at(0)->setPen(QPen(Qt::red,2,Qt::DashLine));
-            curves.at(1)->setPen(QPen(Qt::darkRed ,2,Qt::SolidLine));
-            break;
-        case 1:
-            curves.at(2)->setPen(QPen(Qt::blue,2,Qt::DashLine));
-            curves.at(3)->setPen(QPen(Qt::darkBlue,2,Qt::SolidLine));
-            break;
-        case 2:
-            curves.at(4)->setPen(QPen(Qt::yellow,2,Qt::DashLine));
-            curves.at(5)->setPen(QPen(Qt::darkYellow,1,Qt::SolidLine));
-            break;
-        case 3:
-            curves.at(6)->setPen(QPen(Qt::white,2,Qt::DashLine));
-            curves.at(7)->setPen(QPen(Qt::lightGray,2,Qt::SolidLine));
-            break;
-        case 4:
-            curves.at(8)->setPen(QPen(Qt::green,2,Qt::DashLine));
-            curves.at(9)->setPen(QPen(Qt::darkGreen ,2,Qt::SolidLine));
-            break;
-        case 5:
-            curves.at(10)->setPen(QPen(Qt::magenta,2,Qt::DashLine));
-            curves.at(11)->setPen(QPen(Qt::darkMagenta,2,Qt::SolidLine));
-            break;
-        }
-
         if(file.open(QIODevice::ReadOnly))
         {
             yData.resize(filesCount*2);
@@ -351,6 +367,50 @@ void MainWindow::on_draw_button_clicked()
             file.close();
         }
     }
+}
+
+void MainWindow::readDataFromRS232()
+{
+    if (!portopened)
+    {
+        portopened=true;
+        PortNew->sendchar('1');
+    }
+    else
+    {
+         portopened=false;
+    }
+    double Ts=0;
+    bool ok;
+    QVector<QVector<double>> yData;
+    curves.append(new QwtPlotCurve("MEMS1_rs232"));
+    curves.append(new QwtPlotCurve("PIEZO1_rs232"));
+    curves.append(new QwtPlotCurve("MEMS2_rs232"));
+    curves.append(new QwtPlotCurve("PIEZO2_rs232"));
+    setCurvesStyle(4-1);
+}
+
+
+void MainWindow::on_draw_button_clicked()
+{
+
+
+    if (dataSource==ui->filesRadioButton->text())
+    {
+        if (emptyItems==1)
+        {
+            msgBox.setText("Необходимо снова добавить файлы");
+            if(msgBox.exec()==0x400) return;
+
+        }
+        readDataFromFiles();
+    }
+    else
+    {
+        readDataFromRS232();
+    }
+
+
 
     ui->qwtPlot->replot();
 
@@ -358,6 +418,12 @@ void MainWindow::on_draw_button_clicked()
 
 void MainWindow::on_draw_button2_clicked()
 {
+    if (emptyItems==1)
+    {
+        msgBox.setText("Необходимо снова добавить файлы");
+        if(msgBox.exec()==0x400) return;
+
+    }
     QDataStream stream;
     bool ok;
 
@@ -484,4 +550,83 @@ void MainWindow::on_draw_button2_clicked()
     ui->qwtPlot_data2->replot();
 
 
+}
+
+
+//void MainWindow::on_startButton_clicked()
+//{
+
+//}
+
+void MainWindow::on_savePortSettingsButton_clicked()
+{
+    savesettings(ui->portsBox->currentText(), ui->speedBox->currentText().toInt(),8,0,1,0);
+
+
+}
+
+
+void MainWindow::on_filesRadioButton_toggled(bool checked)
+{
+   if (checked)
+   {
+       setDataSource(ui->filesRadioButton->text());
+       ui->addFileButton->setEnabled(true);
+       ui->draw_button->setText("Нарисовать");
+       ui->actionStartRS232->setEnabled(false);
+       ui->actionStopRS232->setEnabled(false);
+   }
+   else
+   {
+       setDataSource(ui->RS232radioButton->text());
+       ui->actionStartRS232->setEnabled(true);
+       ui->actionStopRS232->setEnabled(true);
+       ui->addFileButton->setEnabled(false);
+       if (portopened)
+       {
+           ui->draw_button->setText("Стоп");
+       }
+       else
+       {
+           ui->draw_button->setText("Старт");
+       }
+
+   }
+}
+
+void MainWindow::on_RS232radioButton_toggled(bool checked)
+{
+    if (checked)
+    {
+        ui->actionStartRS232->setEnabled(true);
+        ui->actionStopRS232->setEnabled(true);
+        QVector<QVector<double>> yData;
+        setDataSource(ui->RS232radioButton->text());
+        ui->addFileButton->setEnabled(false);
+        ui->qwtPlot->detachItems(QwtPlotItem::Rtti_PlotCurve,true);
+        ui->qwtPlot_data1->detachItems(QwtPlotItem::Rtti_PlotCurve,true);
+        ui->qwtPlot_data2->detachItems(QwtPlotItem::Rtti_PlotCurve,true);
+        curves.clear();
+        ui->qwtPlot->replot();
+        ui->qwtPlot_data1->replot();
+        ui->qwtPlot_data2->replot();
+
+        emptyItems=1;
+        if (portopened)
+        {
+            ui->draw_button->setText("Стоп");
+        }
+        else
+        {
+            ui->draw_button->setText("Старт");
+        }
+    }
+    else
+    {
+        ui->draw_button->setText("Нарисовать");
+        ui->actionStartRS232->setEnabled(false);
+        ui->actionStopRS232->setEnabled(false);
+        setDataSource(ui->filesRadioButton->text());
+        ui->addFileButton->setEnabled(true);
+    }
 }

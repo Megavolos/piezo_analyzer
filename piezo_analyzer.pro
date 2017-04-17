@@ -19,11 +19,13 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 SOURCES += main.cpp\
         mainwindow.cpp \
     headers.cpp \
-    rs232plot.cpp
+    rs232plot.cpp \
+    port.cpp
 
 HEADERS  += mainwindow.h \
     headers.h \
-    rs232plot.h
+    rs232plot.h \
+    port.h
 
 FORMS    += mainwindow.ui
 

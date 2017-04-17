@@ -17,6 +17,9 @@
 #include <qwt_plot_marker.h>
 #include <QtSerialPort/QSerialPort>
 #include <QtSerialPort/QSerialPortInfo>
+#include <QThread>
+#include <QMessageBox>
+#include "port.h"
 
 namespace Ui {
 class MainWindow;
@@ -31,11 +34,15 @@ public:
     Scope scope;
 
     QVector<double> xData;      //значения по оси x
-
-
-
+    void setDataSource (QString source);
+    void readDataFromFiles();
+    void readDataFromRS232();
+    void setCurvesStyle(uchar i);
     ~MainWindow();
+signals:
 
+    void savesettings(QString name, int baudrate, int DataBits, int Parity, int StopBits, int FlowControl);
+    void writeData(const QByteArray &data);
 private slots:
 
 
@@ -52,6 +59,16 @@ private slots:
 
     void on_draw_button2_clicked();
 
+    void Print(QString data);
+
+    void on_savePortSettingsButton_clicked();
+
+
+
+    void on_filesRadioButton_toggled(bool checked);
+
+    void on_RS232radioButton_toggled(bool checked);
+
 private:
     Ui::MainWindow *ui;
     QwtLegend *leg, *leg1, *leg2;                     //легенда для графика
@@ -60,11 +77,16 @@ private:
     QwtPlotMagnifier *zoom_y, *zoom_y1, *zoom_y2;
     QwtPlotPanner *d_panner,*d_panner1,*d_panner2;            //перемещатель
     QwtPlotGrid *grid,*grid1,*grid2;                  //сетка
-    QwtPlotCurve *curv1,*curv2;         //две кривые
+   // QwtPlotCurve *curv1,*curv2;         //две кривые
     QwtPlotMarker *m1;                  //маркер- горизонтальная линия в 0.
     QVector<QwtPlotCurve*> curves;
+    Port *PortNew;
     QSerialPortInfo serialPortInfo;
     QList<QSerialPortInfo> serialPorts;
+    QString dataSource;
+    QMessageBox msgBox;
+    uchar emptyItems;
+    bool portopened;
 };
 
 
