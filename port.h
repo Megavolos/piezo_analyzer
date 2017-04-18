@@ -25,7 +25,7 @@ public:
 signals:
     void finished_Port(); //Сигнал закрытия класса
     void error_(QString err);//Сигнал ошибок порта
-    void outPort(QString data); //Сигнал вывода полученных данных
+    void outPort(QByteArray data); //Сигнал вывода полученных данных
 public slots:
     void  DisconnectPort(); // Слот отключения порта
     void ConnectPort(void); // Слот подключения порта

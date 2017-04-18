@@ -64,6 +64,7 @@ void Port :: ConnectPort(void){//процедура подключения
         {
             if (thisPort.isOpen()){
                 error_((SettingsPort.name+ " >> Открыт!\r").toLocal8Bit());
+                qDebug("Открыт");
             }
         } else {
             thisPort.close();
@@ -79,6 +80,7 @@ void Port::handleError(QSerialPort::SerialPortError error)//проверка о�
     if ( (thisPort.isOpen()) && (error == QSerialPort::ResourceError)) {
         error_(thisPort.errorString().toLocal8Bit());
         DisconnectPort();
+        qDebug(thisPort.errorString().toLocal8Bit());
     }
 }//
 void  Port::DisconnectPort(){//Отключаем порт
@@ -88,7 +90,9 @@ void  Port::DisconnectPort(){//Отключаем порт
     }
 }
 void Port :: WriteToPort(QByteArray data){//Запись данных в порт
-    if(thisPort.isOpen()){
+    bool op = thisPort.isOpen();
+    if(thisPort.isOpen())
+    {
         thisPort.write(data);
     }
 }

@@ -59,7 +59,7 @@ private slots:
 
     void on_draw_button2_clicked();
 
-    void Print(QString data);
+    void Print(QByteArray data);
 
     void on_savePortSettingsButton_clicked();
 

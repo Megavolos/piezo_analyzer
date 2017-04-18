@@ -134,7 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
         ui->speedBox->addItem(QString::number(bauds));
     }
     QThread *thread_New = new QThread;//Создаем поток для порта платы
-    Port *PortNew = new Port(this);//Создаем обьект по классу
+    Port *PortNew = new Port();//Создаем обьект по классу
     PortNew->moveToThread(thread_New);//помешаем класс  в поток
     PortNew->thisPort.moveToThread(thread_New);//Помещаем сам порт в поток
     connect(PortNew, SIGNAL(error_(QString)), this, SLOT(Print(QString)));//Лог ошибок
@@ -145,14 +145,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(savesettings(QString,int,int,int,int,int)),PortNew,SLOT(Write_Settings_Port(QString,int,int,int,int,int)));//Слот - ввод настроек!
     connect(ui->actionStartRS232, SIGNAL(triggered(bool)),PortNew,SLOT(ConnectPort()));
     connect(ui->actionStopRS232, SIGNAL(triggered(bool)),PortNew,SLOT(DisconnectPort()));
-    connect(PortNew, SIGNAL(outPort(QString)), this, SLOT(Print(QString)));//Лог ошибок
+    connect(PortNew, SIGNAL(outPort(QByteArray)), this, SLOT(Print(QByteArray)));//Лог ошибок
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
     thread_New->start();
 
 
 }
-void MainWindow::Print(QString data)
+void MainWindow::Print(QByteArray data)
 {
+
    // ui->consol->textCursor().insertText(data+'\r'); // Вывод текста в консоль
    // ui->consol->moveCursor(QTextCursor::End);//Scroll
 }
@@ -371,14 +372,20 @@ void MainWindow::readDataFromFiles()
 
 void MainWindow::readDataFromRS232()
 {
+    QByteArray d;
+    d.append('1');
     if (!portopened)
     {
         portopened=true;
-        PortNew->sendchar('1');
+        emit writeData(d);
+        ui->draw_button->setText("Стоп");
     }
     else
     {
          portopened=false;
+         d[0]='0';
+         emit writeData(d);
+         ui->draw_button->setText("Старт");
     }
     double Ts=0;
     bool ok;
@@ -387,7 +394,7 @@ void MainWindow::readDataFromRS232()
     curves.append(new QwtPlotCurve("PIEZO1_rs232"));
     curves.append(new QwtPlotCurve("MEMS2_rs232"));
     curves.append(new QwtPlotCurve("PIEZO2_rs232"));
-    setCurvesStyle(4-1);
+   // setCurvesStyle(4-1);
 }
 
 
@@ -560,7 +567,7 @@ void MainWindow::on_draw_button2_clicked()
 
 void MainWindow::on_savePortSettingsButton_clicked()
 {
-    savesettings(ui->portsBox->currentText(), ui->speedBox->currentText().toInt(),8,0,1,0);
+    savesettings(ui->portsBox->currentText(), ui->speedBox->currentText().toInt(),8,0,0,0);
 
 
 }

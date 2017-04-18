@@ -18,7 +18,7 @@
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -590,7 +590,22 @@
     <addaction name="action"/>
     <addaction name="action_2"/>
    </widget>
+   <widget class="QMenu" name="menu_2">
+    <property name="title">
+     <string>Настройки</string>
+    </property>
+    <widget class="QMenu" name="menu_3">
+     <property name="title">
+      <string>Источник данных</string>
+     </property>
+     <addaction name="actionRIGOL"/>
+     <addaction name="actionRS232"/>
+    </widget>
+    <addaction name="menu_3"/>
+    <addaction name="actionCOM"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_2"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -652,6 +667,21 @@
    </property>
    <property name="text">
     <string>stopRS232</string>
+   </property>
+  </action>
+  <action name="actionCOM">
+   <property name="text">
+    <string>RS232</string>
+   </property>
+  </action>
+  <action name="actionRIGOL">
+   <property name="text">
+    <string>Файлы осциллографа RIGOL</string>
+   </property>
+  </action>
+  <action name="actionRS232">
+   <property name="text">
+    <string>RS232</string>
    </property>
   </action>
  </widget>
