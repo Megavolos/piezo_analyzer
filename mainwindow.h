@@ -38,6 +38,7 @@ public:
     void readDataFromFiles();
     void readDataFromRS232();
     void setCurvesStyle(uchar i);
+    void processSamples();
     ~MainWindow();
 signals:
 
@@ -86,6 +87,10 @@ private:
     QString dataSource;
     QMessageBox msgBox;
     uchar emptyItems;
+    qint32 receivedBytes;
+    uchar channelSwitch;
+    QVector<double> ch0,ch1,ch2,ch3;
+    uchar startRecieved,test;
     bool portopened;
 };
 

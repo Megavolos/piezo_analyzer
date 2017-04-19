@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //создание интерфейса MainWindow и всяких кнопок
     setDataSource(ui->filesRadioButton->text());
     portopened = false;
+    startRecieved = 0;
     leg = new QwtLegend();                                      //легенда
     leg->setDefaultItemMode(QwtLegendData::ReadOnly);           //нельзя редактировать легенду
     leg1 = new QwtLegend();                                      //легенда
@@ -151,9 +152,77 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 }
+void MainWindow::processSamples()
+{
+    
+    curves.at(0)->setYAxis(QwtPlot::yRight);
+    curves.at(0)->setSamples(xData,ch0);
+    curves.at(0)->attach(ui->qwtPlot);
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::yRight,true);
+    ch0.clear();
+    ch1.clear();
+    ch2.clear();
+    ch3.clear();
+    ui->qwtPlot->replot();
+}
+
 void MainWindow::Print(QByteArray data)
 {
+    bool ok;
+    if (portopened&&startRecieved<4)
+    {
+        for (int i=0; i<data.size();i++)
+        {
+            if (data.at(i)==0x11 || data.at(i)==0x12 || data.at(i)==0x13 || data.at(i)==0x14)
+            {
+                if (data.at(i)==0x12)
+                {
+                    uchar w;
+                    w=1;
+                }
+                startRecieved++;
+                data.remove(i,1);
+                i--;
+                if (startRecieved==4) break;
+            }
 
+        }
+
+    }
+    if (startRecieved==4)
+    {
+    test++;
+    if (test==4)
+    {
+        test=4;
+    }
+        for (int i=0; i<data.size();i++)
+        {
+            switch (channelSwitch)  {
+            case 0:
+                ch0.append(data.at(i));
+                receivedBytes++;
+                break;
+            case 1:
+                ch1.append(data.at(i));
+                break;
+            case 2:
+                ch2.append(data.at(i));
+                break;
+            case 3:
+                ch3.append(data.at(i));
+                if (receivedBytes==ui->widthLineEdit->text().toInt(&ok)) //считан последний байт пакета + количество полученных байт равно заданному в поле ввода
+                {
+                    processSamples();
+                }
+                break;
+            }
+            channelSwitch++;
+
+            if (channelSwitch==4) channelSwitch=0;
+        }
+
+    }
    // ui->consol->textCursor().insertText(data+'\r'); // Вывод текста в консоль
    // ui->consol->moveCursor(QTextCursor::End);//Scroll
 }
@@ -289,6 +358,7 @@ void MainWindow::readDataFromFiles()
     {
         QFile file(scope.fileNames.at(i));
         QVector<QVector<double>> yData;       //эти векторы будут содержать данные по оси Y для построения графиков
+
         if(file.open(QIODevice::ReadOnly))
         {
             yData.resize(filesCount*2);
@@ -373,7 +443,7 @@ void MainWindow::readDataFromFiles()
 void MainWindow::readDataFromRS232()
 {
     QByteArray d;
-    d.append('1');
+    d.append('3');
     if (!portopened)
     {
         portopened=true;
@@ -394,7 +464,22 @@ void MainWindow::readDataFromRS232()
     curves.append(new QwtPlotCurve("PIEZO1_rs232"));
     curves.append(new QwtPlotCurve("MEMS2_rs232"));
     curves.append(new QwtPlotCurve("PIEZO2_rs232"));
-   // setCurvesStyle(4-1);
+    curves.at(0)->setRenderHint(QwtPlotItem::RenderAntialiased);
+    curves.at(1)->setRenderHint(QwtPlotItem::RenderAntialiased);
+    curves.at(2)->setRenderHint(QwtPlotItem::RenderAntialiased);
+    curves.at(3)->setRenderHint(QwtPlotItem::RenderAntialiased);
+    curves.at(0)->attach(ui->qwtPlot);
+    curves.at(1)->attach(ui->qwtPlot);
+    curves.at(2)->attach(ui->qwtPlot);
+    curves.at(3)->attach(ui->qwtPlot);
+    setCurvesStyle(0);
+    setCurvesStyle(1);
+    xData.clear();
+    xData.resize(ui->widthLineEdit->text().toInt());
+    for (int i=0;i<ui->widthLineEdit->text().toInt();i++)
+    {
+        xData[i]=i;
+    }
 }
 
 
