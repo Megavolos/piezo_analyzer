@@ -70,6 +70,8 @@ private slots:
 
     void on_RS232radioButton_toggled(bool checked);
 
+    void on_verticalSlider_valueChanged(int value);
+
 private:
     Ui::MainWindow *ui;
     QwtLegend *leg, *leg1, *leg2;                     //легенда для графика
@@ -90,7 +92,7 @@ private:
     qint32 receivedBytes;
     uchar channelSwitch;
     QVector<double> ch0,ch1,ch2,ch3;
-    uchar startRecieved,test;
+    uchar startRecieved;
     bool portopened;
 };
 

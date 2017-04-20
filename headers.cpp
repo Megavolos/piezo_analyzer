@@ -2,7 +2,7 @@
 
 Scope::Scope()
 {
-
+    filter_store=0;
 }
 Scope::~Scope()
 {
@@ -18,6 +18,19 @@ QVector<qreal> Scope::filter(QVector<qreal> *in, qreal coeff )              //in
     {
         out[i]=coeff*in->at(i) + (1.0-coeff)*out.at(i-1);                   //сам фильтр
     }
+    return out;
+
+}
+
+QVector<qreal> Scope::filter_rs232(QVector<qreal> *in, qreal coeff )              //in - вход фильтра, coeff - коэф.фильтра от 0 до 1
+{
+    QVector<qreal> out(in->size());                                         //Выход фильтра
+    out[0]=filter_store;
+    for (int i=1; i<in->size(); i++)
+    {
+        out[i]=coeff*in->at(i) + (1.0-coeff)*out.at(i-1);                   //сам фильтр
+    }
+    filter_store=out.at(out.size()-1);
     return out;
 
 }

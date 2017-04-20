@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setDataSource(ui->filesRadioButton->text());
     portopened = false;
     startRecieved = 0;
+    receivedBytes=0;
     leg = new QwtLegend();                                      //легенда
     leg->setDefaultItemMode(QwtLegendData::ReadOnly);           //нельзя редактировать легенду
     leg1 = new QwtLegend();                                      //легенда
@@ -154,11 +155,15 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 void MainWindow::processSamples()
 {
-    
-    curves.at(0)->setYAxis(QwtPlot::yRight);
+    bool ok;
+    if (ui->lpf1_enable->isChecked())
+    {
+         ch0 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+    }
+
     curves.at(0)->setSamples(xData,ch0);
     curves.at(0)->attach(ui->qwtPlot);
-    ui->qwtPlot->setAxisAutoScale(QwtPlot::yRight,true);
+
     ch0.clear();
     ch1.clear();
     ch2.clear();
@@ -175,11 +180,6 @@ void MainWindow::Print(QByteArray data)
         {
             if (data.at(i)==0x11 || data.at(i)==0x12 || data.at(i)==0x13 || data.at(i)==0x14)
             {
-                if (data.at(i)==0x12)
-                {
-                    uchar w;
-                    w=1;
-                }
                 startRecieved++;
                 data.remove(i,1);
                 i--;
@@ -191,29 +191,25 @@ void MainWindow::Print(QByteArray data)
     }
     if (startRecieved==4)
     {
-    test++;
-    if (test==4)
-    {
-        test=4;
-    }
         for (int i=0; i<data.size();i++)
         {
             switch (channelSwitch)  {
             case 0:
-                ch0.append(data.at(i));
+                ch0.append((uchar)data.at(i));
                 receivedBytes++;
                 break;
             case 1:
-                ch1.append(data.at(i));
+                ch1.append((uchar)data.at(i));
                 break;
             case 2:
-                ch2.append(data.at(i));
+                ch2.append((uchar)data.at(i));
                 break;
             case 3:
-                ch3.append(data.at(i));
+                ch3.append((uchar)data.at(i));
                 if (receivedBytes==ui->widthLineEdit->text().toInt(&ok)) //считан последний байт пакета + количество полученных байт равно заданному в поле ввода
                 {
                     processSamples();
+                    receivedBytes=0;
                 }
                 break;
             }
@@ -320,19 +316,19 @@ void MainWindow::setCurvesStyle(uchar i)
 {
     switch (i) {
     case 0:
-        curves.at(0)->setPen(QPen(Qt::red,2,Qt::DashLine));
+        curves.at(0)->setPen(QPen(Qt::red,2,Qt::SolidLine));
         curves.at(1)->setPen(QPen(Qt::darkRed ,2,Qt::SolidLine));
         break;
     case 1:
-        curves.at(2)->setPen(QPen(Qt::blue,2,Qt::DashLine));
+        curves.at(2)->setPen(QPen(Qt::blue,2,Qt::SolidLine));
         curves.at(3)->setPen(QPen(Qt::darkBlue,2,Qt::SolidLine));
         break;
     case 2:
-        curves.at(4)->setPen(QPen(Qt::yellow,2,Qt::DashLine));
+        curves.at(4)->setPen(QPen(Qt::yellow,2,Qt::SolidLine));
         curves.at(5)->setPen(QPen(Qt::darkYellow,1,Qt::SolidLine));
         break;
     case 3:
-        curves.at(6)->setPen(QPen(Qt::white,2,Qt::DashLine));
+        curves.at(6)->setPen(QPen(Qt::white,2,Qt::SolidLine));
         curves.at(7)->setPen(QPen(Qt::lightGray,2,Qt::SolidLine));
         break;
     case 4:
@@ -443,7 +439,7 @@ void MainWindow::readDataFromFiles()
 void MainWindow::readDataFromRS232()
 {
     QByteArray d;
-    d.append('3');
+    d.append('2');
     if (!portopened)
     {
         portopened=true;
@@ -474,6 +470,10 @@ void MainWindow::readDataFromRS232()
     curves.at(3)->attach(ui->qwtPlot);
     setCurvesStyle(0);
     setCurvesStyle(1);
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::yRight,false);
+    ui->qwtPlot->setAxisScale(QwtPlot::yRight,0,ui->verticalSlider->value());
+    ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,true);
+    curves.at(0)->setYAxis(QwtPlot::yRight);
     xData.clear();
     xData.resize(ui->widthLineEdit->text().toInt());
     for (int i=0;i<ui->widthLineEdit->text().toInt();i++)
@@ -499,6 +499,7 @@ void MainWindow::on_draw_button_clicked()
     }
     else
     {
+
         readDataFromRS232();
     }
 
@@ -721,4 +722,10 @@ void MainWindow::on_RS232radioButton_toggled(bool checked)
         setDataSource(ui->filesRadioButton->text());
         ui->addFileButton->setEnabled(true);
     }
+}
+
+void MainWindow::on_verticalSlider_valueChanged(int value)
+{
+    ui->qwtPlot->setAxisScale(QwtPlot::yRight,0,value);
+    ui->qwtPlot->replot();
 }
