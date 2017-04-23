@@ -6,7 +6,7 @@ Scope::Scope()
 }
 Scope::~Scope()
 {
-
+ssssss
 }
 
 
