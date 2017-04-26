@@ -70,7 +70,6 @@ private slots:
 
     void on_RS232radioButton_toggled(bool checked);
 
-    void on_verticalSlider_valueChanged(int value);
 
 private:
     Ui::MainWindow *ui;

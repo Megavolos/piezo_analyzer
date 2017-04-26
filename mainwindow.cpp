@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     grid->enableXMin(true);
     grid->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
     grid->setMinorPen(QPen(Qt::gray,1,Qt::DotLine));
-
+   // ui->groupBox_3->setVisible(false);
     grid1 = new QwtPlotGrid;
     grid1->enableXMin(true);
     grid1->setMajorPen(QPen(Qt::white,1,Qt::DotLine));
@@ -151,6 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
     thread_New->start();
 
+    ui->groupBox_rs232data->setVisible(false);
 
 }
 void MainWindow::processSamples()
@@ -471,7 +472,6 @@ void MainWindow::readDataFromRS232()
     setCurvesStyle(0);
     setCurvesStyle(1);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yRight,false);
-    ui->qwtPlot->setAxisScale(QwtPlot::yRight,0,ui->verticalSlider->value());
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,true);
     curves.at(0)->setYAxis(QwtPlot::yRight);
 
@@ -669,6 +669,8 @@ void MainWindow::on_filesRadioButton_toggled(bool checked)
        ui->draw_button->setText("Нарисовать");
        ui->actionStartRS232->setEnabled(false);
        ui->actionStopRS232->setEnabled(false);
+       ui->groupBox_rs232data->setVisible(false);
+       ui->groupBox_filesdata->setVisible(true);
    }
    else
    {
@@ -676,6 +678,7 @@ void MainWindow::on_filesRadioButton_toggled(bool checked)
        ui->actionStartRS232->setEnabled(true);
        ui->actionStopRS232->setEnabled(true);
        ui->addFileButton->setEnabled(false);
+
        if (portopened)
        {
            ui->draw_button->setText("Стоп");
@@ -714,6 +717,8 @@ void MainWindow::on_RS232radioButton_toggled(bool checked)
         {
             ui->draw_button->setText("Старт");
         }
+        ui->groupBox_rs232data->setVisible(true);
+        ui->groupBox_filesdata->setVisible(false);
     }
     else
     {
@@ -725,8 +730,3 @@ void MainWindow::on_RS232radioButton_toggled(bool checked)
     }
 }
 
-void MainWindow::on_verticalSlider_valueChanged(int value)
-{
-    ui->qwtPlot->setAxisScale(QwtPlot::yRight,0,value);
-    ui->qwtPlot->replot();
-}
