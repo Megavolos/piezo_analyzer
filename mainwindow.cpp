@@ -474,6 +474,7 @@ void MainWindow::readDataFromRS232()
     ui->qwtPlot->setAxisScale(QwtPlot::yRight,0,ui->verticalSlider->value());
     ui->qwtPlot->setAxisAutoScale(QwtPlot::xBottom,true);
     curves.at(0)->setYAxis(QwtPlot::yRight);
+
     xData.clear();
     xData.resize(ui->widthLineEdit->text().toInt());
     for (int i=0;i<ui->widthLineEdit->text().toInt();i++)
