@@ -151,7 +151,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(writeData(QByteArray)),PortNew,SLOT(WriteToPort(QByteArray)));
     thread_New->start();
 
-    ui->groupBox_rs232data->setVisible(false);
+
 
 }
 void MainWindow::processSamples()
@@ -159,11 +159,23 @@ void MainWindow::processSamples()
     bool ok;
     if (ui->lpf1_enable->isChecked())
     {
-         ch0 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok));            //добавим фильтр на канал 1
+         ch0 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok),0);            //добавим фильтр на канал 1
+    }
+    if (ui->lpf2_enable->isChecked())
+    {
+         ch1 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok),1);            //добавим фильтр на канал 1
+    }
+    if (ui->lpf3_enable->isChecked())
+    {
+         ch2 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok),2);            //добавим фильтр на канал 1
+    }
+    if (ui->lpf4_enable->isChecked())
+    {
+         ch3 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok),3);            //добавим фильтр на канал 1
     }
 
-    curves.at(0)->setSamples(xData,ch0);
-    curves.at(0)->attach(ui->qwtPlot);
+    //curves.at(0)->setSamples(xData,ch0);
+    //curves.at(0)->attach(ui->qwtPlot);
 
     ch0.clear();
     ch1.clear();
@@ -465,10 +477,13 @@ void MainWindow::readDataFromRS232()
     curves.at(1)->setRenderHint(QwtPlotItem::RenderAntialiased);
     curves.at(2)->setRenderHint(QwtPlotItem::RenderAntialiased);
     curves.at(3)->setRenderHint(QwtPlotItem::RenderAntialiased);
-    curves.at(0)->attach(ui->qwtPlot);
-    curves.at(1)->attach(ui->qwtPlot);
-    curves.at(2)->attach(ui->qwtPlot);
-    curves.at(3)->attach(ui->qwtPlot);
+    if (ui->tabWidget->currentIndex()==3)
+    {
+        curves.at(0)->attach(ui->qwtPlot);
+        curves.at(1)->attach(ui->qwtPlot);
+        curves.at(2)->attach(ui->qwtPlot);
+        curves.at(3)->attach(ui->qwtPlot);
+    }
     setCurvesStyle(0);
     setCurvesStyle(1);
     ui->qwtPlot->setAxisAutoScale(QwtPlot::yRight,false);
@@ -481,6 +496,8 @@ void MainWindow::readDataFromRS232()
     {
         xData[i]=i;
     }
+    curves.at(0)->setSamples(xData,ch0);
+
 }
 
 
@@ -669,8 +686,10 @@ void MainWindow::on_filesRadioButton_toggled(bool checked)
        ui->draw_button->setText("Нарисовать");
        ui->actionStartRS232->setEnabled(false);
        ui->actionStopRS232->setEnabled(false);
-       ui->groupBox_rs232data->setVisible(false);
-       ui->groupBox_filesdata->setVisible(true);
+       //ui->groupBox_rs232data->setVisible(false);
+       //ui->groupBox_Data1->setVisible(true);
+       //ui->groupBox_Data2->setVisible(true);
+
    }
    else
    {
@@ -717,12 +736,15 @@ void MainWindow::on_RS232radioButton_toggled(bool checked)
         {
             ui->draw_button->setText("Старт");
         }
-        ui->groupBox_rs232data->setVisible(true);
-        ui->groupBox_filesdata->setVisible(false);
+        //ui->groupBox_rs232data->setVisible(true);
+        //ui->groupBox_Data1->setVisible(false);
+        //ui->groupBox_Data2->setVisible(false);
+
     }
     else
     {
         ui->draw_button->setText("Нарисовать");
+
         ui->actionStartRS232->setEnabled(false);
         ui->actionStopRS232->setEnabled(false);
         setDataSource(ui->filesRadioButton->text());

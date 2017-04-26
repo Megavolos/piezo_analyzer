@@ -56,9 +56,9 @@ public:
     void readHeaders();                         //функция, читающая заголовки файлов
     QVector<qreal> recalcSamples(int fileIndex, int channel);       //пересчитывает семплы в вольты
     QVector<qreal> filter(QVector<qreal> *in, qreal coeff );        //ФНЧ на базе экспоненциально скользящего среднего
-    QVector<qreal> filter_rs232(QVector<qreal> *in, qreal coeff );        //ФНЧ на базе экспоненциально скользящего среднего
+    QVector<qreal> filter_rs232(QVector<qreal> *in, qreal coeff , uchar channel);        //ФНЧ на базе экспоненциально скользящего среднего
     QVector<qreal> integrate(QVector<qreal> *in, qreal zeroLevel); //Интегрирование с отсечкой по уровню.
-    qreal filter_store;
+    qreal filter_store[4];
     ~Scope();
 private:
 
