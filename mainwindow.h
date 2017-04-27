@@ -19,6 +19,10 @@
 #include <QtSerialPort/QSerialPortInfo>
 #include <QThread>
 #include <QMessageBox>
+#include <QFileInfo>
+#include <QDataStream>
+#include <QFile>
+
 #include "port.h"
 
 namespace Ui {
@@ -93,6 +97,9 @@ private:
     QVector<double> ch0,ch1,ch2,ch3;
     uchar startRecieved;
     bool portopened;
+    QString dir,path;
+    QFile file;
+    QDataStream datastream;
 };
 
 

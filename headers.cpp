@@ -37,6 +37,29 @@ QVector<qreal> Scope::filter_rs232(QVector<qreal> *in, qreal coeff,uchar channel
     return out;
 
 }
+bool Scope::fileExists(QString path) {
+    QFileInfo check_file(path);
+    // check if file exists and if yes: Is it really a file and no directory?
+    if (check_file.exists() && check_file.isFile())
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+void Scope::writetofile(QString path, char data)
+{
+    QFile file(path);
+    if ( file.open(QIODevice::ReadWrite) )
+    {
+        QDataStream stream;
+        stream.setDevice(&file);
+        stream<<data;
+    }
+
+}
 
 void Scope::readHeaders()
 {

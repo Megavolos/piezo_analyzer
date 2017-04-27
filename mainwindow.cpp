@@ -206,9 +206,10 @@ void MainWindow::Print(QByteArray data)
     {
         for (int i=0; i<data.size();i++)
         {
+            datastream<<data.at(i);
             switch (channelSwitch)  {
             case 0:
-                ch0.append((uchar)data.at(i));
+                ch0.append((uchar)data.at(i)); 
                 receivedBytes++;
                 break;
             case 1:
@@ -452,10 +453,28 @@ void MainWindow::readDataFromFiles()
 void MainWindow::readDataFromRS232()
 {
     QByteArray d;
+    QString filename;
     d.append('2');
     if (!portopened)
     {
         portopened=true;
+        dir=QFileDialog::getExistingDirectory(this, tr("Open Directory"),"/home",QFileDialog::ShowDirsOnly|QFileDialog::DontResolveSymlinks);
+
+        for (int i=0; i<100; i++)
+        {
+            path=dir+"/"+QString::number(i)+".dat";
+            if (!scope.fileExists(path))
+            {
+                file.setFileName(path);
+                if ( file.open(QIODevice::ReadWrite) )
+                {
+                    datastream.setDevice(&file);
+                }
+
+                break;
+            }
+
+        }
         emit writeData(d);
         ui->draw_button->setText("Стоп");
     }
@@ -464,6 +483,7 @@ void MainWindow::readDataFromRS232()
          portopened=false;
          d[0]='0';
          emit writeData(d);
+         file.close();
          ui->draw_button->setText("Старт");
     }
     double Ts=0;

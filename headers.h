@@ -8,6 +8,7 @@
 #include <QVector>          //класс для создания векторов (аля массивы)
 #include <QFile>            //класс для работы с файлами
 #include <QDataStream>      //класс для облегчения чтения данных из файлов
+#include <QFileInfo>
 
 //ниже смещения для заголовка wfm файла
 enum offsets{
@@ -58,6 +59,8 @@ public:
     QVector<qreal> filter(QVector<qreal> *in, qreal coeff );        //ФНЧ на базе экспоненциально скользящего среднего
     QVector<qreal> filter_rs232(QVector<qreal> *in, qreal coeff , uchar channel);        //ФНЧ на базе экспоненциально скользящего среднего
     QVector<qreal> integrate(QVector<qreal> *in, qreal zeroLevel); //Интегрирование с отсечкой по уровню.
+    bool fileExists(QString path);
+    void writetofile(QString path, char data);
     qreal filter_store[4];
     ~Scope();
 private:
