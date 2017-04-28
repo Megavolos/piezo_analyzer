@@ -174,8 +174,8 @@ void MainWindow::processSamples()
          ch3 = scope.filter_rs232(&ch0,ui->coeff1->text().toFloat(&ok),3);            //добавим фильтр на канал 1
     }
 
-    //curves.at(0)->setSamples(xData,ch0);
-    //curves.at(0)->attach(ui->qwtPlot);
+    curves.at(0)->setSamples(xData,ch0);
+
 
     ch0.clear();
     ch1.clear();
@@ -516,7 +516,7 @@ void MainWindow::readDataFromRS232()
     {
         xData[i]=i;
     }
-    curves.at(0)->setSamples(xData,ch0);
+
 
 }
 
