@@ -206,7 +206,7 @@ void MainWindow::Print(QByteArray data)
     {
         for (int i=0; i<data.size();i++)
         {
-            datastream<<data.at(i);
+            datastream<<(qint8)data.at(i);
             switch (channelSwitch)  {
             case 0:
                 ch0.append((uchar)data.at(i)); 
